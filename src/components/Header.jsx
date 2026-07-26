@@ -34,36 +34,54 @@ const Header = ({ activeTab, setActiveTab, searchTerm, setSearchTerm, onLogoClic
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-3 sm:px-6 md:px-8 py-3 shadow-xl">
-      <div className="max-w-7xl mx-auto flex flex-wrap md:flex-nowrap items-center justify-between gap-2.5 sm:gap-4 md:gap-8">
+    <header className="sticky top-0 z-50 w-full bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-3 sm:px-6 md:px-8 py-2.5 shadow-xl">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2.5 md:gap-4">
         
-        {/* Left Corner: Logo & Web Name */}
-        <button
-          onClick={onLogoClick}
-          className="flex items-center gap-2.5 text-left focus:outline-none group shrink-0"
-        >
-          {!logoFailed ? (
-            <img
-              src={logoSrc}
-              alt="Logo"
-              onError={handleLogoError}
-              className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-2xl group-hover:scale-105 transition-transform"
-            />
-          ) : (
-            <div className="w-9 h-9 sm:w-10.5 sm:h-10.5 rounded-2xl bg-gradient-to-tr from-violet-600 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-violet-500/25 group-hover:scale-105 transition-transform">
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+        {/* Top Header Row on Mobile / Left Section on Desktop */}
+        <div className="flex items-center justify-between w-full md:w-auto">
+          {/* Logo & Web Title */}
+          <button
+            onClick={onLogoClick}
+            className="flex items-center gap-2.5 text-left focus:outline-none group shrink-0"
+          >
+            {!logoFailed ? (
+              <img
+                src={logoSrc}
+                alt="Logo"
+                onError={handleLogoError}
+                className="w-10 h-10 sm:w-14 sm:h-14 object-contain rounded-2xl group-hover:scale-105 transition-transform"
+              />
+            ) : (
+              <div className="w-9 h-9 sm:w-10.5 sm:h-10.5 rounded-2xl bg-gradient-to-tr from-violet-600 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-violet-500/25 group-hover:scale-105 transition-transform">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+            )}
+            <div className="flex flex-col">
+              <span className="header-logo-title text-sm sm:text-base md:text-lg font-extrabold text-white tracking-tight leading-tight group-hover:text-violet-300 transition-colors">
+                <span>{t('nav.title')}</span>
+              </span>
+              <span className="text-[10px] sm:text-xs text-slate-400 font-medium tracking-wide">{t('nav.subTitle')}</span>
             </div>
-          )}
-          <div className="flex flex-col">
-            <span className="header-logo-title text-sm sm:text-base md:text-lg font-extrabold text-white tracking-tight leading-tight group-hover:text-violet-300 transition-colors">
-              <span>{t('nav.title')}</span>
-            </span>
-            <span className="text-[10px] sm:text-xs text-slate-400 font-medium tracking-wide">{t('nav.subTitle')}</span>
-          </div>
-        </button>
+          </button>
+
+          {/* Profile Button - Positioned in top-right corner on mobile (< md) */}
+          <button
+            onClick={handleProfileClick}
+            title="Profile"
+            className={`md:hidden flex items-center gap-1.5 p-1 rounded-full transition-all shrink-0 ${
+              activeTab === 'profile'
+                ? 'bg-violet-600/30 text-violet-300 border border-violet-500/50 shadow-md ring-2 ring-violet-500/30'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/60 border border-transparent'
+            }`}
+          >
+            <div className="w-8 h-8 rounded-full bg-slate-800 border border-violet-500/40 flex items-center justify-center text-xs font-bold text-violet-300 shadow-inner">
+              {user?.name ? user.name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
+            </div>
+          </button>
+        </div>
 
         {/* Center: Search Bar */}
-        <div className="order-3 md:order-none w-full md:w-auto md:flex-1 max-w-full md:max-w-xl mx-auto mt-1 md:mt-0">
+        <div className="w-full md:w-auto md:flex-1 max-w-full md:max-w-xl mx-auto">
           <div className="relative">
             <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
               <Search className="w-4 h-4" />
@@ -86,14 +104,14 @@ const Header = ({ activeTab, setActiveTab, searchTerm, setSearchTerm, onLogoClic
           </div>
         </div>
 
-        {/* Right Corner: Buttons */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        {/* Right Action Buttons - Smooth horizontal scroll on small devices */}
+        <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2.5 w-full md:w-auto overflow-x-auto no-scrollbar py-0.5">
           
           {/* Bookings Button */}
           <button
             onClick={handleBookingsClick}
             title={t('nav.myAppointments')}
-            className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs sm:text-sm font-semibold shrink-0 transition-all ${
               activeTab === 'appointments'
                 ? 'bg-violet-600/30 text-violet-300 border border-violet-500/40 shadow-md'
                 : 'text-slate-300 hover:text-white hover:bg-slate-800/60 border border-transparent'
@@ -107,7 +125,7 @@ const Header = ({ activeTab, setActiveTab, searchTerm, setSearchTerm, onLogoClic
           <button
             onClick={handleNotificationsClick}
             title="Notifications"
-            className={`relative p-2 sm:p-2.5 rounded-full transition-all ${
+            className={`relative p-2 sm:p-2.5 rounded-full shrink-0 transition-all ${
               activeTab === 'notifications'
                 ? 'bg-violet-600/30 text-violet-300 border border-violet-500/40 shadow-md'
                 : 'text-slate-300 hover:text-white hover:bg-slate-800/60 border border-transparent'
@@ -121,20 +139,22 @@ const Header = ({ activeTab, setActiveTab, searchTerm, setSearchTerm, onLogoClic
           <button
             onClick={onOpenTelegramNotice}
             title={t('nav.telegram')}
-            className="p-2 sm:p-2.5 rounded-full bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 transition-all active:scale-95 shadow-md shadow-sky-500/10 flex items-center gap-1.5 cursor-pointer"
+            className="p-2 sm:p-2.5 rounded-full bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 transition-all active:scale-95 shadow-md shadow-sky-500/10 flex items-center gap-1.5 cursor-pointer shrink-0"
           >
             <Bot className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-sky-400 animate-pulse" />
             <span className="hidden xl:inline text-xs font-bold text-sky-300">{t('nav.telegram')}</span>
           </button>
 
-          {/* Language Selector (English / Hindi / Marathi) */}
-          <LanguageSelector storageKey="customer_lang" />
+          {/* Language Selector */}
+          <div className="shrink-0">
+            <LanguageSelector storageKey="customer_lang" />
+          </div>
 
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            className={`px-2.5 sm:px-3 py-2 rounded-full border text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-md ${
+            className={`px-2.5 sm:px-3 py-2 rounded-full border text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-md shrink-0 ${
               theme === 'dark'
                 ? 'border-amber-500/40 bg-slate-900 text-amber-300 hover:bg-slate-800 shadow-amber-500/10'
                 : 'border-violet-400 bg-white text-violet-700 hover:bg-slate-50 shadow-violet-500/10'
@@ -153,11 +173,11 @@ const Header = ({ activeTab, setActiveTab, searchTerm, setSearchTerm, onLogoClic
             )}
           </button>
 
-          {/* Profile Button (Rightmost Corner) */}
+          {/* Profile Button - Desktop view (md:flex) */}
           <button
             onClick={handleProfileClick}
             title="Profile"
-            className={`flex items-center gap-2 pl-1.5 sm:pl-2 pr-2.5 sm:pr-3 py-1.5 rounded-full transition-all ${
+            className={`hidden md:flex items-center gap-2 pl-1.5 sm:pl-2 pr-2.5 sm:pr-3 py-1.5 rounded-full transition-all shrink-0 ${
               activeTab === 'profile'
                 ? 'bg-violet-600/30 text-violet-300 border border-violet-500/40 shadow-md'
                 : 'text-slate-300 hover:text-white hover:bg-slate-800/60 border border-transparent'
