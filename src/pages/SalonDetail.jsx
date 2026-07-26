@@ -197,7 +197,7 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
 
       {/* Animated Holiday Announcement Banner */}
       {salon?.holidayDate && (
-        <div className="relative overflow-hidden p-6 rounded-3xl bg-gradient-to-br from-violet-950/90 via-purple-900/90 to-fuchsia-950/90 border-2 border-violet-400/40 text-violet-100 shadow-2xl shadow-violet-950/50 backdrop-blur-md space-y-4 animate-fade-in group">
+        <div className="holiday-banner-card relative overflow-hidden p-6 rounded-3xl backdrop-blur-md space-y-4 animate-fade-in group shadow-2xl">
           {/* Animated Glowing Ambient Orbs */}
           <div className="absolute -top-12 -right-12 w-32 h-32 bg-fuchsia-500/20 rounded-full blur-2xl animate-pulse pointer-events-none" />
           <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-violet-500/20 rounded-full blur-2xl animate-pulse pointer-events-none" />
@@ -208,10 +208,10 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
                 <Sparkles className="w-5 h-5 text-amber-300 fill-current animate-spin" />
               </div>
               <div>
-                <h4 className="font-black text-base text-white tracking-wide flex items-center gap-2">
+                <h4 className="holiday-title font-black text-base tracking-wide flex items-center gap-2">
                   {t('holiday.announcementTitle')}
                 </h4>
-                <p className="text-[11px] text-violet-200/90 font-semibold flex items-center gap-1">
+                <p className="holiday-sub text-[11px] font-semibold flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-amber-400" />
                   {t('holiday.noticeSub')}
                 </p>
@@ -223,24 +223,24 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
           </div>
 
           <div className="space-y-2.5 relative z-10">
-            <div className="p-4 rounded-2xl bg-slate-950/80 border border-violet-500/30 shadow-inner space-y-2">
+            <div className="holiday-inner-box p-4 rounded-2xl shadow-inner space-y-2">
               <div className="flex items-center justify-between text-xs font-bold flex-wrap gap-2">
-                <span className="text-violet-300 flex items-center gap-1.5">
-                  {t('holiday.dateLabel')} <span className="text-amber-300 text-sm font-black tracking-wider px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-400/30 font-mono">{salon.holidayDate}</span>
+                <span className="holiday-date-label flex items-center gap-1.5">
+                  {t('holiday.dateLabel')} <span className="holiday-date-value text-sm font-black tracking-wider px-2 py-0.5 rounded-lg font-mono">{salon.holidayDate}</span>
                 </span>
                 {salon.holidayReason && (
-                  <span className="text-fuchsia-300 font-extrabold text-xs flex items-center gap-1 bg-fuchsia-500/10 px-2.5 py-0.5 rounded-lg border border-fuchsia-400/30">
+                  <span className="holiday-reason-badge font-extrabold text-xs flex items-center gap-1 px-2.5 py-0.5 rounded-lg">
                     {salon.holidayReason}
                   </span>
                 )}
               </div>
               {salon.holidayMessage && (
-                <p className="text-xs text-slate-200 font-medium italic pt-1 border-t border-slate-800/80">
+                <p className="holiday-message-text text-xs font-medium italic pt-1 border-t border-violet-500/30">
                   "{salon.holidayMessage}"
                 </p>
               )}
             </div>
-            <p className="text-[11px] text-violet-200/80 font-semibold flex items-center gap-1.5 pt-0.5">
+            <p className="holiday-resume-text text-[11px] font-semibold flex items-center gap-1.5 pt-0.5">
               <span>{t('holiday.resumeNotice')}</span>
             </p>
           </div>
