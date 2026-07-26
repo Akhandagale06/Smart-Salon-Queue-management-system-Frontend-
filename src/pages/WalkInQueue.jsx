@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Clock, User, Smartphone, Scissors, Loader, CheckCircle2, ArrowRight, Globe } from 'lucide-react';
 import api from '../config/api';
 import LanguageSelector from '../components/LanguageSelector';
+import { formatWaitTime } from '../utils/timeFormatter';
 
 const WalkInQueue = ({ salonId, onReset }) => {
   const { t, i18n } = useTranslation();
@@ -194,7 +195,7 @@ const WalkInQueue = ({ salonId, onReset }) => {
                       {trackerData?.position !== undefined ? trackerData.position : '...'}
                     </h1>
                     <p className="text-xs text-slate-400 font-medium">
-                      {t('walkin.estimatedWait', { defaultValue: 'अंदाजे वेळ' })}: <span className="text-violet-400 font-bold">{trackerData?.estimatedWaitingTime || 0} {t('walkin.mins', { defaultValue: 'मिनिटे' })}</span>
+                      {t('walkin.estimatedWait', { defaultValue: 'अंदाजे वेळ' })}: <span className="text-violet-400 font-bold">{formatWaitTime(trackerData?.estimatedWaitingTime || 0, t)}</span>
                     </p>
                   </div>
                 )}

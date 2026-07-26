@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import api from '../config/api';
 import { formatServiceName } from '../utils/serviceTranslator';
+import { formatWaitTime } from '../utils/timeFormatter';
 
 const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
   const { t, i18n } = useTranslation();
@@ -384,14 +385,14 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
                 <>
                   <Coffee className="w-4 h-4 text-amber-400 animate-bounce" />
                   <span className="text-xs font-bold">
-                    Queue Paused (Break in Progress) • {t('detail.estimatedWait')}: {queueStatus.estimatedWaitingTime || 0} {t('common.mins')}
+                    Queue Paused (Break in Progress) • {t('detail.estimatedWait')}: {formatWaitTime(queueStatus.estimatedWaitingTime || 0, t)}
                   </span>
                 </>
               ) : (
                 <>
                   <Hourglass className="w-4 h-4 text-violet-300 animate-spin" />
                   <span className="text-xs font-semibold">
-                    {t('detail.estimatedWait')}: {queueStatus.estimatedWaitingTime || 0} {t('common.mins')}
+                    {t('detail.estimatedWait')}: {formatWaitTime(queueStatus.estimatedWaitingTime || 0, t)}
                   </span>
                 </>
               )}
