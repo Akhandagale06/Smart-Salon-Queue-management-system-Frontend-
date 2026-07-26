@@ -1,0 +1,461 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  }
+}
+
+/* Glassmorphism styling */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.glass-modal {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-bottom-bar {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 9999px;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera (navigation tabs) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* ==========================================
+   TELEGRAM NOTICE MODAL DEDICATED STYLES
+   ========================================== */
+
+/* Dark Mode (Default) */
+.telegram-notice-banner {
+  background-color: rgba(14, 165, 233, 0.2) !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  color: #ffffff !important;
+}
+
+.telegram-notice-banner span {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.telegram-step-card {
+  background-color: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+  color: #f8fafc !important;
+}
+
+.telegram-step-label {
+  color: #38bdf8 !important;
+}
+
+.telegram-step-title {
+  color: #ffffff !important;
+}
+
+.telegram-step-desc {
+  color: #cbd5e1 !important;
+}
+
+/* Light Mode Overrides when .theme-light is active */
+.theme-light .telegram-notice-banner {
+  background-color: #0284c7 !important; /* Solid vibrant sky-blue banner */
+  border: 1px solid #0369a1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25) !important;
+}
+
+.theme-light .telegram-notice-banner span {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+.theme-light .telegram-step-card {
+  background-color: #ffffff !important; /* Clean crisp white step card */
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+  color: #0f172a !important;
+}
+
+.theme-light .telegram-step-label {
+  color: #0284c7 !important;
+  font-weight: 900 !important;
+}
+
+.theme-light .telegram-step-title {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+.theme-light .telegram-step-desc {
+  color: #334155 !important;
+}
+/* ==========================================
+   SUB TABS (ACTIVE BOOKINGS / HISTORY ETC.)
+   ========================================== */
+
+/* Dark Mode (Default) */
+.subtab-container {
+  background-color: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(30, 41, 59, 0.8);
+}
+
+.subtab-button-active {
+  background: linear-gradient(to right, #7c3aed, #c026d3);
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+}
+
+.subtab-button-inactive {
+  color: #94a3b8;
+}
+
+.subtab-button-inactive:hover {
+  color: #f8fafc;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Light Mode Overrides when .theme-light is active */
+.theme-light .subtab-container {
+  background-color: #e2e8f0 !important; /* Soft clean light grey pill bar */
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+}
+
+.theme-light .subtab-button-active {
+  background: linear-gradient(to right, #7c3aed, #c026d3) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25) !important;
+}
+
+.theme-light .subtab-button-inactive {
+  color: #475569 !important; /* Dark readable slate text */
+  background-color: transparent !important;
+  font-weight: 800 !important;
+}
+
+.theme-light .subtab-button-inactive:hover {
+  color: #0f172a !important;
+  background-color: rgba(255, 255, 255, 0.6) !important;
+}
+/* ==========================================
+   LIVE QUEUE POSITION CARD STYLES
+   ========================================== */
+
+/* Dark Mode (Default) */
+.live-queue-card {
+  background: linear-gradient(135deg, rgba(76, 29, 149, 0.7), rgba(46, 16, 101, 0.8));
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
+}
+
+.live-queue-badge {
+  color: #c4b5fd;
+}
+
+.live-queue-label {
+  color: #a78bfa;
+}
+
+.live-queue-value {
+  color: #ffffff;
+}
+
+.live-queue-status-title {
+  color: #10b981;
+}
+
+.live-queue-status-subtitle {
+  color: #e2e8f0;
+}
+
+.live-queue-wait-pill {
+  background-color: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: #ede9fe;
+}
+
+.live-queue-break-banner {
+  background-color: rgba(217, 119, 6, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fde68a;
+}
+
+/* Light Mode Overrides when .theme-light is active */
+.theme-light .live-queue-card {
+  background: linear-gradient(135deg, #7c3aed, #4c1d95) !important; /* Rich vibrant gradient purple card */
+  border: 1px solid #6d28d9 !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 36px rgba(124, 58, 237, 0.3) !important;
+}
+
+.theme-light .live-queue-badge {
+  color: #ddd6fe !important; /* Bright crisp lilac text */
+  font-weight: 900 !important;
+}
+
+.theme-light .live-queue-label {
+  color: #c4b5fd !important; /* Soft lilac label */
+  font-weight: 800 !important;
+}
+
+.theme-light .live-queue-value {
+  color: #ffffff !important; /* Pure white numbers */
+  font-weight: 900 !important;
+}
+
+.theme-light .live-queue-status-title {
+  color: #34d399 !important; /* Vibrant emerald green for IT'S YOUR TURN */
+  font-weight: 900 !important;
+}
+
+.theme-light .live-queue-status-subtitle {
+  color: #f8fafc !important; /* Pure white subtitle */
+  font-weight: 700 !important;
+}
+
+.theme-light .live-queue-wait-pill {
+  background-color: rgba(15, 23, 42, 0.4) !important; /* Dark contrast pill */
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important; /* Pure white wait time text */
+  font-weight: 800 !important;
+}
+
+.theme-light .live-queue-wait-pill * {
+  color: #ffffff !important;
+}
+
+.theme-light .live-queue-break-banner {
+  background-color: rgba(251, 191, 36, 0.25) !important;
+  border: 1px solid rgba(251, 191, 36, 0.5) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.theme-light .live-queue-break-banner * {
+  color: #ffffff !important;
+}
+
+/* ==============================
+   LIGHT THEME OVERRIDES
+   ============================== */
+
+.theme-light {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Modal overlay backdrop: keep dark dim backdrop */
+.theme-light .fixed.inset-0 {
+  background-color: rgba(15, 23, 42, 0.75) !important;
+}
+
+/* Glass panels & cards */
+.theme-light .glass-panel {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.theme-light .glass-card {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(203, 213, 225, 0.9) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+.theme-light .glass-modal {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+  color: #0f172a !important;
+}
+
+.theme-light .glass-bottom-bar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-top-color: #cbd5e1 !important;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Headers */
+.theme-light header {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+.theme-light header .header-logo-title,
+.theme-light header .header-logo-title span {
+  color: #0f172a !important;
+}
+
+.theme-light header .text-slate-400,
+.theme-light header .text-slate-300 {
+  color: #334155 !important;
+}
+
+.theme-light header input {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+.theme-light header input::placeholder {
+  color: #64748b !important;
+}
+
+/* Headings & dark text overrides */
+.theme-light h1,
+.theme-light h2,
+.theme-light h3,
+.theme-light h4,
+.theme-light h5,
+.theme-light h6 {
+  color: #0f172a !important;
+}
+
+.theme-light .text-slate-100,
+.theme-light .text-slate-200 {
+  color: #0f172a !important;
+}
+
+.theme-light .text-slate-300 {
+  color: #1e293b !important;
+}
+
+.theme-light .text-slate-400 {
+  color: #334155 !important;
+}
+
+.theme-light .text-slate-500 {
+  color: #475569 !important;
+}
+
+/* Inputs & Form controls */
+.theme-light input,
+.theme-light select,
+.theme-light textarea {
+  background-color: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+.theme-light input::placeholder,
+.theme-light textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Background overrides for main containers */
+.theme-light main .bg-slate-950,
+.theme-light main .bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+.theme-light .bg-slate-850 {
+  background-color: #f1f5f9 !important;
+}
+
+.theme-light .bg-slate-800,
+.theme-light .bg-slate-800\/40,
+.theme-light .bg-slate-800\/50,
+.theme-light .bg-slate-800\/60,
+.theme-light .bg-slate-800\/80 {
+  background-color: #e2e8f0 !important;
+}
+
+/* Borders */
+.theme-light .border-slate-800,
+.theme-light .border-slate-800\/80,
+.theme-light .border-slate-800\/90,
+.theme-light .border-slate-700,
+.theme-light .border-slate-700\/50 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Colored text accents in light mode */
+.theme-light .text-violet-400 {
+  color: #6d28d9 !important;
+}
+
+.theme-light .text-violet-300 {
+  color: #5b21b6 !important;
+}
+
+.theme-light .text-emerald-400 {
+  color: #059669 !important;
+}
+
+.theme-light .text-emerald-300 {
+  color: #047857 !important;
+}
+
+.theme-light .text-amber-400 {
+  color: #d97706 !important;
+}
+
+.theme-light .text-red-400 {
+  color: #dc2626 !important;
+}
+
+.theme-light .text-sky-400 {
+  color: #0284c7 !important;
+}
+
+/* Preserve white text on primary gradient buttons */
+.theme-light button.bg-gradient-to-r *,
+.theme-light button.bg-gradient-to-tr *,
+.theme-light button[class*="bg-violet-600"] *,
+.theme-light a.bg-gradient-to-r * {
+  color: #ffffff !important;
+}
+
+/* Scrollbars in light theme */
+.theme-light ::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+}
+
+.theme-light ::-webkit-scrollbar-thumb {
+  background: #94a3b8 !important;
+}
+
+.theme-light ::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important;
+}

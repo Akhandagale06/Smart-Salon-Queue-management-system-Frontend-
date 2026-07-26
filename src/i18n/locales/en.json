@@ -1,0 +1,103 @@
+{
+  "nav": {
+    "title": "Smart Salon",
+    "subTitle": "Instant Live Queue & Booking",
+    "home": "Explore Salons",
+    "myAppointments": "My Appointments",
+    "activeQueue": "Live Queue Track",
+    "telegram": "Get Turn Alerts"
+  },
+  "home": {
+    "heroTitle": "Skip the Wait, Join the Queue Live",
+    "heroDesc": "Real-time queue tracking & instant booking for your favorite local salons.",
+    "searchPlaceholder": "Search by salon name, area, or city...",
+    "statusOpen": "Open Now",
+    "statusPaused": "Bookings Paused",
+    "statusClosed": "Closed Today",
+    "bookSlot": "Book Slot / Join Queue",
+    "viewDetails": "View Salon Details",
+    "operatingHours": "Operating Hours",
+    "activeServices": "Available Services"
+  },
+  "detail": {
+    "liveQueuePosition": "Live Queue Position",
+    "salonBreakActive": "SALON BREAK ACTIVE",
+    "position": "Position",
+    "token": "Token",
+    "serving": "Serving",
+    "estimatedWait": "Estimated wait",
+    "yourTurnTitle": "IT'S YOUR TURN!",
+    "yourTurnSub": "Please proceed to the grooming chair.",
+    "beingServedTitle": "YOU ARE BEING SERVED!",
+    "beingServedSub": "Your service is currently in progress.",
+    "upcomingBreak": "Upcoming Break Today",
+    "back": "Back to Salons",
+    "selectServices": "Select Services to Book",
+    "totalAmount": "Total Price",
+    "confirmBooking": "Confirm Booking & Join Queue",
+    "customerName": "Your Name",
+    "customerMobile": "Mobile Number"
+  },
+  "holiday": {
+    "announcementTitle": "🎉 SALON HOLIDAY ANNOUNCEMENT",
+    "noticeSub": "Official Owner Holiday Notice",
+    "badge": "HOLIDAY",
+    "dateLabel": "📅 Holiday Date:",
+    "resumeNotice": "✨ Online bookings & live queue operations will resume after the holiday. Thank you for your support!"
+  },
+  "telegramModal": {
+    "noticeTitle": "Important Notice",
+    "requiredBadge": "Required",
+    "setupGuide": "Telegram Bot Setup Guide",
+    "bannerText": "Follow the 5 steps below carefully to receive instant turn alerts & appointment notifications!",
+    "step1": "Step 1",
+    "step1Title": "Download Telegram and Log In",
+    "step1Desc": "Install Telegram app on your phone or use Telegram Web on desktop.",
+    "step1Link": "Download Telegram App (Official Site)",
+    "step2": "Step 2",
+    "step2Title": "Connect to Official Salon Queue Bot",
+    "step2Desc": "Click the animated button below to open our Telegram Bot directly:",
+    "step2Btn": "🤖 Open Telegram Bot",
+    "step3": "Step 3",
+    "step3Title": "Click on the START Button",
+    "step3Desc": "Once Telegram opens, click the START button at the bottom to initialize the bot.",
+    "step4": "Step 4",
+    "step4Title": "Enter Your Login Mobile Number",
+    "step4Desc": "Enter the exact mobile number used for your website login.",
+    "step5": "Step 5",
+    "step5Title": "Confirm Telegram Linking Message",
+    "step5Desc": "Confirm that you receive a message saying your account is linked.",
+    "step5Sample": "Your Telegram account is now linked. You will receive appointment notifications here.",
+    "step5Warning": "If you do not receive this message, please inform the salon admin immediately.",
+    "checkboxLabel": "I have read and followed all instructions carefully",
+    "okBtn": "OK, Close Notice"
+  },
+  "appointments": {
+    "activeBookings": "Active Bookings",
+    "history": "History",
+    "noActive": "No active appointments found",
+    "noHistory": "No past appointment history",
+    "cancel": "Cancel Booking",
+    "viewTicket": "View Live Tracker",
+    "statusWaiting": "Waiting in Queue",
+    "statusInService": "In Service",
+    "statusCompleted": "Completed",
+    "statusCancelled": "Cancelled"
+  },
+  "profile": {
+    "title": "My Profile & Account",
+    "name": "Full Name",
+    "mobile": "Mobile Number",
+    "logout": "Logout Account"
+  },
+  "common": {
+    "mins": "mins",
+    "rs": "₹",
+    "refresh": "Refresh",
+    "language": "Language",
+    "themeLight": "Light Mode",
+    "themeDark": "Dark Mode",
+    "close": "Close",
+    "loading": "Loading..."
+  }
+}
