@@ -104,8 +104,8 @@ const Header = ({ activeTab, setActiveTab, searchTerm, setSearchTerm, onLogoClic
           </div>
         </div>
 
-        {/* Right Action Buttons - Smooth horizontal scroll on small devices */}
-        <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2.5 w-full md:w-auto overflow-x-auto no-scrollbar py-0.5">
+        {/* Right Action Buttons */}
+        <div className="flex items-center justify-between sm:justify-end flex-wrap md:flex-nowrap gap-1.5 sm:gap-2.5 w-full md:w-auto py-0.5 relative">
           
           {/* Bookings Button */}
           <button

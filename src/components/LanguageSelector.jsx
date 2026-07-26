@@ -35,7 +35,7 @@ export default function LanguageSelector({ storageKey = 'customer_lang' }) {
   }, []);
 
   return (
-    <div className="relative inline-block text-left" ref={dropdownRef}>
+    <div className="relative inline-block text-left z-50" ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -49,7 +49,7 @@ export default function LanguageSelector({ storageKey = 'customer_lang' }) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-52 rounded-xl bg-slate-950 border border-slate-700 shadow-2xl z-50 overflow-hidden p-1.5 space-y-1.5">
+        <div className="absolute right-0 mt-2 w-52 rounded-xl bg-slate-950 border border-slate-700 shadow-2xl z-[100] overflow-hidden p-1.5 space-y-1.5">
           {LANGUAGES.map((lang) => {
             const isSelected = currentLang.code === lang.code;
             return (
