@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, User, Smartphone, Scissors, Loader, CheckCircle2, ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Clock, User, Smartphone, Scissors, Loader, CheckCircle2, ArrowRight, Globe } from 'lucide-react';
 import api from '../config/api';
+import LanguageSelector from '../components/LanguageSelector';
 
 const WalkInQueue = ({ salonId, onReset }) => {
+  const { t, i18n } = useTranslation();
   const [salon, setSalon] = useState(null);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +21,15 @@ const WalkInQueue = ({ salonId, onReset }) => {
   const [walkInId, setWalkInId] = useState(localStorage.getItem(`walkInId_${salonId}`) || null);
   const [trackerData, setTrackerData] = useState(null);
   const [trackerError, setTrackerError] = useState('');
+
+  // Default language to Marathi ('mr') on walk-in QR scan if no language previously chosen
+  useEffect(() => {
+    const savedLang = localStorage.getItem('customer_lang');
+    if (!savedLang) {
+      i18n.changeLanguage('mr');
+      localStorage.setItem('customer_lang', 'mr');
+    }
+  }, [i18n]);
 
   // Fetch Salon details & Services for registration
   useEffect(() => {
@@ -39,14 +51,14 @@ const WalkInQueue = ({ salonId, onReset }) => {
           setSelectedServiceId(activeServices[0].id);
         }
       } catch (err) {
-        setError('Failed to load salon queue details.');
+        setError(t('walkin.loadError', { defaultValue: 'Failed to load salon queue details.' }));
       } finally {
         setLoading(false);
       }
     };
     
     fetchSalonData();
-  }, [salonId, walkInId]);
+  }, [salonId, walkInId, t]);
 
   // Live Tracking Polling Loop
   useEffect(() => {
@@ -58,8 +70,7 @@ const WalkInQueue = ({ salonId, onReset }) => {
         setTrackerData(res.data.data);
         setTrackerError('');
       } catch (err) {
-        // If 404/400 (e.g. completed or deleted), or error
-        setTrackerError('Your turn is completed or you were removed from the queue.');
+        setTrackerError(t('walkin.completedOrRemoved', { defaultValue: 'Your turn is completed or you were removed from the queue.' }));
       } finally {
         setLoading(false);
       }
@@ -68,12 +79,12 @@ const WalkInQueue = ({ salonId, onReset }) => {
     fetchQueueStatus();
     const interval = setInterval(fetchQueueStatus, 3000); // 3-second live refresh
     return () => clearInterval(interval);
-  }, [walkInId]);
+  }, [walkInId, t]);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!selectedServiceId) {
-      setError('Please select a service.');
+      setError(t('walkin.selectServiceError', { defaultValue: 'Please select a service.' }));
       return;
     }
     
@@ -95,7 +106,7 @@ const WalkInQueue = ({ salonId, onReset }) => {
       localStorage.setItem(`walkInId_${salonId}`, walkInResponse.id);
       setWalkInId(walkInResponse.id);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to join the queue. Please select a service.');
+      setError(err.response?.data?.message || t('walkin.joinError', { defaultValue: 'Failed to join the queue. Please select a service.' }));
     } finally {
       setSubmitting(false);
     }
@@ -110,20 +121,11 @@ const WalkInQueue = ({ salonId, onReset }) => {
     if (onReset) onReset();
   };
 
-  const formatTime12Hr = (time24) => {
-    if (!time24) return '';
-    const [hoursStr, minutesStr] = time24.split(':');
-    const hours = parseInt(hoursStr, 10);
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const hours12 = hours % 12 === 0 ? 12 : hours % 12;
-    return `${hours12}:${minutesStr} ${ampm}`;
-  };
-
   if (loading && !trackerData) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center space-y-4">
         <Loader className="w-8 h-8 animate-spin text-violet-500" />
-        <p className="text-xs text-slate-400 font-semibold">Connecting to live queue...</p>
+        <p className="text-xs text-slate-400 font-semibold">{t('common.loading', { defaultValue: 'Loading...' })}</p>
       </div>
     );
   }
@@ -134,14 +136,19 @@ const WalkInQueue = ({ salonId, onReset }) => {
     const isServing = trackerData?.status === 'IN_SERVICE';
 
     return (
-      <div className="space-y-6 max-w-md mx-auto pt-6 pb-20 animate-fade-in">
-        {/* Header */}
-        <div className="text-center space-y-1.5">
-          <div className="inline-flex p-3 rounded-2xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/20 mb-1">
-            <Clock className="w-6 h-6 animate-pulse" />
+      <div className="space-y-6 max-w-md mx-auto pt-4 pb-20 animate-fade-in">
+        {/* Top Header Bar with Language Dropdown */}
+        <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-lg">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-2 rounded-xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white shadow-md shrink-0">
+              <Clock className="w-5 h-5 animate-pulse" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-sm font-bold text-white tracking-wide truncate">{t('walkin.trackerTitle', { defaultValue: 'थेट रांग ट्रॅकर (Live Queue Tracker)' })}</h2>
+              <p className="text-[10px] text-slate-400 font-medium truncate">{t('walkin.trackerSubTitle', { defaultValue: 'वॉकिन ग्राहक रांग स्थिती' })}</p>
+            </div>
           </div>
-          <h2 className="text-xl font-black text-white tracking-wide">Live Queue Tracker</h2>
-          <p className="text-xs text-slate-400 font-medium">Walk-in Client Queue Status</p>
+          <LanguageSelector storageKey="customer_lang" />
         </div>
 
         {/* Tracking Details */}
@@ -150,14 +157,14 @@ const WalkInQueue = ({ salonId, onReset }) => {
             <div className="text-center py-6 space-y-3">
               <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
               <div>
-                <h3 className="font-bold text-white text-base">Service Completed</h3>
-                <p className="text-xs text-slate-400 mt-1">Thank you for visiting! You have been checked out.</p>
+                <h3 className="font-bold text-white text-base">{t('walkin.serviceCompleted', { defaultValue: 'सेवा पूर्ण झाली (Service Completed)' })}</h3>
+                <p className="text-xs text-slate-400 mt-1">{t('walkin.thankYou', { defaultValue: 'भेट दिल्याबद्दल धन्यवाद! तुमची सेवा पूर्ण झाली आहे.' })}</p>
               </div>
               <button
                 onClick={handleClear}
-                className="w-full mt-4 bg-slate-900 border border-slate-800 text-slate-200 py-2.5 rounded-xl text-xs font-bold"
+                className="w-full mt-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 py-3 rounded-xl text-xs font-bold transition-all"
               >
-                Back to Registration
+                {t('walkin.backToRegistration', { defaultValue: 'नवीन नोंदणी करा (New Registration)' })}
               </button>
             </div>
           ) : (
@@ -165,7 +172,7 @@ const WalkInQueue = ({ salonId, onReset }) => {
               {/* Tracker Widget */}
               <div className="text-center space-y-2">
                 <span className="text-[10px] font-extrabold px-3 py-1 bg-violet-600/10 border border-violet-500/20 text-violet-400 rounded-full uppercase tracking-wider">
-                  Token #{trackerData?.queueNumber || '...'}
+                  {t('walkin.token', { defaultValue: 'टोकन #' })} {trackerData?.queueNumber || '...'}
                 </span>
                 
                 {isServing || trackerData?.position === 1 ? (
@@ -173,21 +180,21 @@ const WalkInQueue = ({ salonId, onReset }) => {
                     <div className="relative w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center text-emerald-400 mx-auto shadow-lg shadow-emerald-500/20">
                       <Scissors className="w-8 h-8 animate-bounce" />
                     </div>
-                    <h1 className="text-3xl font-black text-emerald-400 tracking-tight uppercase animate-pulse">
-                      {isServing ? 'YOU ARE BEING SERVED!' : "IT'S YOUR TURN!"}
+                    <h1 className="text-2xl sm:text-3xl font-black text-emerald-400 tracking-tight uppercase animate-pulse">
+                      {isServing ? t('walkin.beingServed', { defaultValue: 'तुमची सेवा सुरू आहे!' }) : t('walkin.yourTurn', { defaultValue: 'तुमची वेळ आली आहे!' })}
                     </h1>
                     <p className="text-xs text-slate-200 font-bold">
-                      {isServing ? 'Your styling session is currently in progress.' : 'Please proceed to the grooming chair.'}
+                      {isServing ? t('walkin.sessionProgress', { defaultValue: 'तुमचे काम चालू आहे.' }) : t('walkin.proceedChair', { defaultValue: 'कृपया सलूनच्या खुर्चीवर या.' })}
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-1 py-4">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Current Position</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{t('walkin.currentPosition', { defaultValue: 'रांगेतील स्थान (Current Position)' })}</p>
                     <h1 className="text-6xl font-black bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent tracking-tight">
                       {trackerData?.position !== undefined ? trackerData.position : '...'}
                     </h1>
                     <p className="text-xs text-slate-400 font-medium">
-                      Estimated wait: <span className="text-violet-400 font-bold">{trackerData?.estimatedWaitingTime || 0} mins</span>
+                      {t('walkin.estimatedWait', { defaultValue: 'अंदाजे वेळ' })}: <span className="text-violet-400 font-bold">{trackerData?.estimatedWaitingTime || 0} {t('walkin.mins', { defaultValue: 'मिनिटे' })}</span>
                     </p>
                   </div>
                 )}
@@ -196,17 +203,17 @@ const WalkInQueue = ({ salonId, onReset }) => {
               {/* Booking Metadata */}
               <div className="space-y-3 text-xs text-slate-400 font-medium border-t border-slate-900 pt-4">
                 <div className="flex justify-between py-2 border-b border-slate-900/60">
-                  <span>Name</span>
+                  <span>{t('detail.customerName', { defaultValue: 'नाव' })}</span>
                   <span className="text-slate-200 font-bold">{trackerData?.customerName || 'Walk-in Client'}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-slate-900/60">
-                  <span>Service Selected</span>
-                  <span className="text-slate-200 font-bold">{trackerData?.serviceName || 'Standard Service'}</span>
+                  <span>{t('walkin.selectedService', { defaultValue: 'निवडलेली सेवा' })}</span>
+                  <span className="text-slate-200 font-bold">{t(`serviceNames.${trackerData?.serviceName}`, { defaultValue: trackerData?.serviceName || 'Standard Service' })}</span>
                 </div>
                 <div className="flex justify-between py-2">
-                  <span>Status</span>
+                  <span>{t('walkin.status', { defaultValue: 'स्थिती' })}</span>
                   <span className={`font-bold uppercase ${isServing ? 'text-emerald-400' : 'text-amber-400'}`}>
-                    {isServing ? 'Serving' : 'Waiting'}
+                    {isServing ? t('walkin.statusServing', { defaultValue: 'सेवा सुरू' }) : t('walkin.statusWaiting', { defaultValue: 'रांगेत प्रतीक्षेत' })}
                   </span>
                 </div>
               </div>
@@ -214,9 +221,9 @@ const WalkInQueue = ({ salonId, onReset }) => {
               {/* Reset/Exit Button */}
               <button
                 onClick={handleClear}
-                className="w-full bg-slate-950 hover:bg-slate-900 border border-slate-900 hover:border-slate-850 text-slate-400 hover:text-slate-250 py-2.5 rounded-xl text-xs font-bold transition-all"
+                className="w-full bg-slate-950 hover:bg-slate-900 border border-slate-900 hover:border-slate-850 text-slate-400 hover:text-slate-250 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95"
               >
-                Exit Tracker
+                {t('walkin.exitTracker', { defaultValue: 'ट्रॅकर बंद करा (Exit Tracker)' })}
               </button>
             </>
           )}
@@ -227,16 +234,23 @@ const WalkInQueue = ({ salonId, onReset }) => {
 
   // 2. Registration Form View
   return (
-    <div className="space-y-6 max-w-md mx-auto pt-6 pb-20 animate-fade-in">
-      {/* Header */}
-      <div className="text-center space-y-1.5">
-        <div className="inline-flex p-3 rounded-2xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/20 mb-1">
-          <Scissors className="w-6 h-6" />
+    <div className="space-y-5 max-w-md mx-auto pt-4 pb-20 animate-fade-in">
+      {/* Header Bar with Salon Info & Language Dropdown */}
+      <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-lg">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="p-2 rounded-xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white shadow-md shrink-0">
+            <Scissors className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-sm sm:text-base font-bold text-white tracking-wide truncate">
+              {salon?.name || t('walkin.registrationTitle', { defaultValue: 'वॉकिन ग्राहक नोंदणी' })}
+            </h2>
+            <p className="text-[10px] text-slate-400 font-medium truncate">{t('walkin.registrationSub', { defaultValue: 'थेट रांगेत सामील व्हा' })}</p>
+          </div>
         </div>
-        <h2 className="text-xl font-bold text-white tracking-wide">
-          {salon?.name || 'Walk-in Registration'}
-        </h2>
-        <p className="text-xs text-slate-400 font-medium">Join the live queue queue instantly</p>
+
+        {/* Language Selector (Default Marathi) */}
+        <LanguageSelector storageKey="customer_lang" />
       </div>
 
       {error && (
@@ -246,19 +260,20 @@ const WalkInQueue = ({ salonId, onReset }) => {
       )}
 
       {/* Form */}
-      <form onSubmit={handleRegister} className="glass-card rounded-3xl p-6 space-y-5">
+      <form onSubmit={handleRegister} className="glass-card rounded-3xl p-5 space-y-5">
 
-        {/* Select Service Added by Admin */}
+        {/* Select Service */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-slate-300">Select Service (Added by Salon Owner) *</label>
-            <span className="text-[10px] text-violet-400 font-bold">{services.length} Services</span>
+            <label className="text-xs font-bold text-slate-200">{t('walkin.selectService', { defaultValue: 'सेवा निवडा (Select Service) *' })}</label>
+            <span className="text-[10px] text-violet-400 font-bold">{services.length} {t('walkin.serviceCount', { defaultValue: 'सेवा उपलब्ध' })}</span>
           </div>
 
           {/* Interactive Service Selection Cards Grid */}
-          <div className="grid grid-cols-1 gap-2.5 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+          <div className="grid grid-cols-1 gap-2.5 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
             {services.map((srv) => {
               const isSelected = String(selectedServiceId) === String(srv.id);
+              const translatedName = t(`serviceNames.${srv.name}`, { defaultValue: srv.name });
               return (
                 <div
                   key={srv.id}
@@ -276,8 +291,8 @@ const WalkInQueue = ({ salonId, onReset }) => {
                       <Scissors className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-white">{srv.name}</h4>
-                      <p className="text-[10px] text-slate-400 font-medium">{srv.durationMinutes || 30} mins duration</p>
+                      <h4 className="text-xs font-bold text-white">{translatedName}</h4>
+                      <p className="text-[10px] text-slate-400 font-medium">{srv.durationMinutes || 30} {t('walkin.mins', { defaultValue: 'मिनिटे' })}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -289,17 +304,52 @@ const WalkInQueue = ({ salonId, onReset }) => {
           </div>
         </div>
 
-        {/* Submit */}
+        {/* Customer Details Input (Optional) */}
+        <div className="space-y-3 pt-1 border-t border-slate-900/80">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-300">{t('walkin.customerName', { defaultValue: 'तुमचे नाव (पर्यायी)' })}</label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+                <User className="w-4 h-4" />
+              </span>
+              <input
+                type="text"
+                placeholder={t('walkin.namePlaceholder', { defaultValue: 'उदा. राहुल पाटील' })}
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-9 pr-4 text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-300">{t('walkin.mobileNumber', { defaultValue: 'मोबाईल नंबर (पर्यायी)' })}</label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+                <Smartphone className="w-4 h-4" />
+              </span>
+              <input
+                type="tel"
+                placeholder={t('walkin.mobilePlaceholder', { defaultValue: 'उदा. 9876543210' })}
+                value={mobileNumber}
+                onChange={(e) => setMobileNumber(e.target.value)}
+                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-9 pr-4 text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={submitting}
-          className="w-full py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-550 hover:to-fuchsia-550 text-white font-bold text-xs rounded-xl shadow-lg shadow-violet-500/10 transition-all flex items-center justify-center gap-1.5 mt-2"
+          className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-550 hover:to-fuchsia-550 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-violet-500/20 transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer active:scale-95 disabled:opacity-50"
         >
           {submitting ? (
             <Loader className="w-4 h-4 animate-spin" />
           ) : (
             <>
-              Join Walk-in Queue
+              <span>{t('walkin.joinQueue', { defaultValue: 'रांगेत सामील व्हा (Join Queue)' })}</span>
               <ArrowRight className="w-4 h-4" />
             </>
           )}

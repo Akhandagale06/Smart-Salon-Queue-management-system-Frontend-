@@ -60,7 +60,15 @@ const MainApp = () => {
 
   // URL override for scan-to-join walk-in queue
   const urlParams = new URLSearchParams(window.location.search);
-  const walkInSalonId = urlParams.get('walkInSalonId');
+  const paramWalkInSalonId = urlParams.get('walkInSalonId');
+
+  useEffect(() => {
+    if (paramWalkInSalonId) {
+      localStorage.setItem('activeWalkInSalonId', paramWalkInSalonId);
+    }
+  }, [paramWalkInSalonId]);
+
+  const activeWalkInSalonId = paramWalkInSalonId || localStorage.getItem('activeWalkInSalonId');
 
   if (loading) {
     return (
@@ -70,14 +78,17 @@ const MainApp = () => {
     );
   }
 
-  if (walkInSalonId) {
+  if (activeWalkInSalonId) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
         <main className="flex-1 p-6 overflow-y-auto w-full max-w-md mx-auto">
           <WalkInQueue 
-            salonId={walkInSalonId} 
+            salonId={activeWalkInSalonId} 
             onReset={() => {
+              localStorage.removeItem('activeWalkInSalonId');
+              localStorage.removeItem(`walkInId_${activeWalkInSalonId}`);
               window.history.replaceState({}, document.title, window.location.pathname);
+              window.location.reload();
             }} 
           />
         </main>
