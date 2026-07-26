@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import TelegramNoticeModal from './components/TelegramNoticeModal';
 
 // Pages
@@ -92,6 +93,7 @@ const MainApp = () => {
             }} 
           />
         </main>
+        <Footer />
       </div>
     );
   }
@@ -161,6 +163,8 @@ const MainApp = () => {
       <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col">
         {renderContent()}
       </main>
+
+      <Footer />
 
       <TelegramNoticeModal
         isOpen={isTelegramNoticeOpen}

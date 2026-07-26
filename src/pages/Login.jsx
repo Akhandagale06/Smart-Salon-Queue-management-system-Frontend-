@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Phone, Lock, Sparkles, Loader, ArrowRight, User, MessageSquare } from 'lucide-react';
 import api from '../config/api';
+import Footer from '../components/Footer';
 
 const Login = ({ forceStep3 }) => {
   const { sendOtp, verifyOtp, updateProfileInContext } = useAuth();
@@ -311,7 +312,7 @@ const Login = ({ forceStep3 }) => {
         </div>
 
         {/* Info */}
-        <div className="text-center space-y-1.5">
+        <div className="text-center space-y-1.5 mb-6">
           <p className="text-xs text-violet-400 font-medium">
             ✨ Any new mobile number will automatically register as a new Customer!
           </p>
@@ -319,6 +320,8 @@ const Login = ({ forceStep3 }) => {
             For testing existing customer login, use <span className="text-slate-350 font-bold">9988776655</span>.
           </p>
         </div>
+
+        <Footer />
       </div>
     </div>
   );
