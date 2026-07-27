@@ -92,7 +92,10 @@
     "statusWaiting": "रांगेत प्रतीक्षेत",
     "statusInService": "सेवा सुरू आहे",
     "statusCompleted": "पूर्ण झाले",
-    "statusCancelled": "रद्द केले"
+    "statusCancelled": "रद्द केले",
+    "clearHistory": "इतिहास साफ करा",
+    "clearHistoryConfirm": "तुम्हाला नक्की डेटाबेस मधून तुमचा अपॉइंटमेंट इतिहास साफ करायचा आहे का?",
+    "autoClearNotice": "स्टोरेज जागा वाचवण्यासाठी प्रत्येक दिवसाच्या शेवटी इतिहास डेटाबेसमधून आपोआप साफ केला जातो."
   },
   "profile": {
     "title": "माझे प्रोफाईल आणि खाते",

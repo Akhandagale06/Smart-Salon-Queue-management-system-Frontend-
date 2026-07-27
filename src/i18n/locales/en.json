@@ -82,7 +82,10 @@
     "statusWaiting": "Waiting in Queue",
     "statusInService": "In Service",
     "statusCompleted": "Completed",
-    "statusCancelled": "Cancelled"
+    "statusCancelled": "Cancelled",
+    "clearHistory": "Clear History",
+    "clearHistoryConfirm": "Are you sure you want to clear your appointment history from the database?",
+    "autoClearNotice": "History is automatically cleared from the database at the end of each day to save storage space."
   },
   "profile": {
     "title": "My Profile & Account",

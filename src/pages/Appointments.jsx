@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Clock, Scissors, ChevronRight, RefreshCw, Loader } from 'lucide-react';
+import { Calendar, Clock, Scissors, ChevronRight, RefreshCw, Loader, Trash2, Info } from 'lucide-react';
 import api from '../config/api';
 import { formatServiceName } from '../utils/serviceTranslator';
 
@@ -8,6 +8,7 @@ const Appointments = ({ onSelectAppointment }) => {
   const { t } = useTranslation();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [clearing, setClearing] = useState(false);
   const [error, setError] = useState('');
   const [activeSubTab, setActiveSubTab] = useState('active'); // 'active' or 'history'
 
@@ -47,6 +48,21 @@ const Appointments = ({ onSelectAppointment }) => {
       setError('Failed to fetch appointment history.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClearHistory = async () => {
+    if (!window.confirm(t('appointments.clearHistoryConfirm') || 'Are you sure you want to clear your appointment history from the database?')) {
+      return;
+    }
+    try {
+      setClearing(true);
+      await api.delete('/api/customer/appointments/history');
+      await fetchAppointments();
+    } catch (err) {
+      setError('Failed to clear history from database.');
+    } finally {
+      setClearing(false);
     }
   };
 
@@ -128,6 +144,27 @@ const Appointments = ({ onSelectAppointment }) => {
           {t('appointments.history')} ({historyBookings.length})
         </button>
       </div>
+
+      {activeSubTab === 'history' && (
+        <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs">
+          <div className="flex items-start gap-2 min-w-0">
+            <Info className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" />
+            <p className="font-semibold text-violet-200 text-[11px] leading-snug">
+              {t('appointments.autoClearNotice')}
+            </p>
+          </div>
+          {historyBookings.length > 0 && (
+            <button
+              onClick={handleClearHistory}
+              disabled={clearing}
+              className="px-2.5 py-1 text-[11px] font-bold text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg transition-colors flex items-center gap-1 shrink-0"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              {clearing ? '...' : t('appointments.clearHistory')}
+            </button>
+          )}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
