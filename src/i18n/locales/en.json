@@ -87,6 +87,15 @@
     "clearHistoryConfirm": "Are you sure you want to clear your appointment history from the database?",
     "autoClearNotice": "History is automatically cleared from the database at the end of each day to save storage space."
   },
+  "notifications": {
+    "title": "Notification Center",
+    "subTitle": "Inbox and alerts history",
+    "autoClearNotice": "Notifications automatically clear at the end of each day (midnight).",
+    "clearAll": "Clear Inbox",
+    "clearAllConfirm": "Are you sure you want to clear your notification inbox?",
+    "emptyTitle": "Inbox is empty",
+    "emptySub": "Operational alerts and reminders will appear here."
+  },
   "profile": {
     "title": "My Profile & Account",
     "name": "Full Name",

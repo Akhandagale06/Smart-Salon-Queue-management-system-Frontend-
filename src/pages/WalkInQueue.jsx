@@ -211,6 +211,12 @@ const WalkInQueue = ({ salonId, onReset }) => {
                   <span>{t('walkin.selectedService', { defaultValue: 'निवडलेली सेवा' })}</span>
                   <span className="text-slate-200 font-bold">{t(`serviceNames.${trackerData?.serviceName}`, { defaultValue: trackerData?.serviceName || 'Standard Service' })}</span>
                 </div>
+                {trackerData?.expectedChairTime && (
+                  <div className="flex justify-between py-2 border-b border-slate-900/60">
+                    <span>{t('walkin.expectedChairTime', { defaultValue: 'सेवा सुरू होण्याची वेळ (Chair Time)' })}</span>
+                    <span className="text-violet-300 font-extrabold">{trackerData.expectedChairTime}</span>
+                  </div>
+                )}
                 <div className="flex justify-between py-2">
                   <span>{t('walkin.status', { defaultValue: 'स्थिती' })}</span>
                   <span className={`font-bold uppercase ${isServing ? 'text-emerald-400' : 'text-amber-400'}`}>

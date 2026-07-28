@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Clock, RefreshCw, Eye, EyeOff, Loader } from 'lucide-react';
+import { Bell, Clock, RefreshCw, Trash2, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../config/api';
 
 const Notifications = () => {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [clearing, setClearing] = useState(false);
   const [error, setError] = useState('');
+
   const formatDateDMY = (dateObj) => {
     const d = new Date(dateObj);
     if (isNaN(d.getTime())) return '';
@@ -24,12 +28,28 @@ const Notifications = () => {
     hours = hours % 12 === 0 ? 12 : hours % 12;
     return `${hours}:${minutes} ${ampm}`;
   };
+
+  const isToday = (dateString) => {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return false;
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
+
   const fetchNotifications = async () => {
     try {
       setLoading(true);
       setError('');
       const response = await api.get('/api/customer/notifications?page=0&size=30');
-      setNotifications(response.data.data.content);
+      const rawContent = response.data?.data?.content || [];
+      // Auto-clear logic: Filter so only today's notifications are shown
+      const todaysNotifications = rawContent.filter(n => isToday(n.createdAt));
+      setNotifications(todaysNotifications);
     } catch (err) {
       setError('Failed to fetch notification history.');
     } finally {
@@ -39,6 +59,32 @@ const Notifications = () => {
 
   useEffect(() => {
     fetchNotifications();
+
+    // Set up midnight timer to automatically clear notifications at the end of the day (00:00:00)
+    const now = new Date();
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+    const msUntilMidnight = midnight.getTime() - now.getTime();
+
+    const midnightTimer = setTimeout(() => {
+      setNotifications([]);
+      fetchNotifications();
+    }, msUntilMidnight);
+
+    // Interval check every minute for date rollover
+    let currentDay = new Date().getDate();
+    const interval = setInterval(() => {
+      const todayNum = new Date().getDate();
+      if (todayNum !== currentDay) {
+        currentDay = todayNum;
+        setNotifications([]);
+        fetchNotifications();
+      }
+    }, 60000);
+
+    return () => {
+      clearTimeout(midnightTimer);
+      clearInterval(interval);
+    };
   }, []);
 
   const handleMarkRead = async (id) => {
@@ -51,23 +97,67 @@ const Notifications = () => {
     }
   };
 
+  const handleClearAll = async () => {
+    if (!window.confirm(t('notifications.clearAllConfirm', 'Are you sure you want to clear your notification inbox?'))) {
+      return;
+    }
+    try {
+      setClearing(true);
+      setError('');
+      await api.delete('/api/customer/notifications');
+      setNotifications([]);
+    } catch (err) {
+      console.error('Failed to clear notifications', err);
+      setError('Failed to clear notifications in database. Please restart your backend Java server to load the new delete endpoint.');
+    } finally {
+      setClearing(false);
+    }
+  };
+
   return (
     <div className="space-y-6 pb-20 animate-fade-in">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-white font-sans">
-            Notification Center
+            {t('notifications.title', 'Notification Center')}
           </h2>
-          <p className="text-xs text-slate-400 font-medium">Inbox and alerts history</p>
+          <p className="text-xs text-slate-400 font-medium">
+            {t('notifications.subTitle', 'Inbox and alerts history')}
+          </p>
         </div>
 
-        <button
-          onClick={fetchNotifications}
-          className="p-2.5 rounded-xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 transition-colors"
-        >
-          <RefreshCw className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          {notifications.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              disabled={clearing}
+              className="px-3 py-2 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>{t('notifications.clearAll', 'Clear Inbox')}</span>
+            </button>
+          )}
+
+          <button
+            onClick={fetchNotifications}
+            title={t('common.refresh', 'Refresh')}
+            className="p-2.5 rounded-xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+      </div>
+
+      {/* Auto-clear Notice Banner */}
+      <div className="p-3 bg-violet-500/10 border border-violet-500/20 rounded-xl text-xs text-violet-300 flex items-center justify-between gap-2 shadow-sm">
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4 text-violet-400 shrink-0 animate-pulse" />
+          <span>{t('notifications.autoClearNotice', 'Notifications automatically clear at the end of each day (midnight).')}</span>
+        </div>
+        <span className="px-2 py-0.5 rounded-md bg-violet-600/30 text-[10px] font-bold text-violet-300 shrink-0 uppercase tracking-wider">
+          Daily Reset
+        </span>
       </div>
 
       {error && (
@@ -87,7 +177,7 @@ const Notifications = () => {
               <div
                 key={n.id}
                 onClick={() => !n.isRead && handleMarkRead(n.id)}
-                className={`p-4 rounded-2xl border transition-all duration-300 flex items-start gap-4 relative overflow-hidden ${
+                className={`p-4 rounded-2xl border transition-all duration-300 flex items-start gap-4 relative overflow-hidden cursor-pointer ${
                   n.isRead
                     ? 'glass-card border-slate-900 text-slate-400'
                     : 'bg-violet-600/5 border-violet-500/20 text-slate-200 shadow-lg shadow-violet-500/2'
@@ -119,9 +209,16 @@ const Notifications = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-20 text-slate-500">
-              <p className="font-semibold text-sm">Inbox is empty</p>
-              <p className="text-xs mt-1">Operational alerts and reminders will appear here.</p>
+            <div className="text-center py-20 text-slate-500 space-y-2">
+              <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-600">
+                <Bell className="w-6 h-6" />
+              </div>
+              <p className="font-semibold text-sm text-slate-300">
+                {t('notifications.emptyTitle', 'Inbox is empty')}
+              </p>
+              <p className="text-xs text-slate-500">
+                {t('notifications.emptySub', 'Operational alerts and reminders will appear here.')}
+              </p>
             </div>
           )}
         </div>
