@@ -25,7 +25,6 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
   
   // Booking pane states
   const [selectedService, setSelectedService] = useState(null);
-  const [selectedChair, setSelectedChair] = useState(null); // null = Any Chair
   const [bookingDate, setBookingDate] = useState(new Date().toISOString().split('T')[0]);
   const [bookingTime, setBookingTime] = useState('09:00');
   const [bookingLoading, setBookingLoading] = useState(false);
@@ -85,11 +84,7 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
     if (!selectedService || !bookingDate) return;
     try {
       setSlotsLoading(true);
-      let url = `/api/salons/${salonId}/slots?date=${bookingDate}&serviceId=${selectedService.id}`;
-      if (selectedChair) {
-        url += `&chairNumber=${selectedChair}`;
-      }
-      const res = await api.get(url);
+      const res = await api.get(`/api/salons/${salonId}/slots?date=${bookingDate}&serviceId=${selectedService.id}`);
       setSlots(res.data.data);
       
       const availableSlots = res.data.data.filter(s => s.available);
@@ -111,7 +106,7 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
 
   useEffect(() => {
     fetchSlots();
-  }, [selectedService, bookingDate, selectedChair]);
+  }, [selectedService, bookingDate]);
 
   const handleBookSlot = async (e) => {
     e.preventDefault();
@@ -128,7 +123,6 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
         serviceId: selectedService.id,
         bookingDate,
         bookingTime: bookingTime + ":00", // Format to LocalTime HH:mm:ss
-        chairNumber: selectedChair || undefined,
         lang: currentLang
       };
 
@@ -413,43 +407,6 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
                 </div>
               </div>
 
-              {/* Chair Selection */}
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-center">
-                  <label className="text-xs font-semibold text-slate-400">Select Barber Chair</label>
-                  <span className="text-[10px] text-fuchsia-400 font-extrabold">
-                    {selectedChair ? `Selected: Chair #${selectedChair}` : 'Any Available Chair'}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedChair(null)}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border ${
-                      selectedChair === null
-                        ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white border-violet-400 shadow-md shadow-violet-500/20'
-                        : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
-                    }`}
-                  >
-                    ✨ Any Chair
-                  </button>
-                  {Array.from({ length: salon?.totalChairs || 1 }, (_, i) => i + 1).map((chairNum) => (
-                    <button
-                      key={chairNum}
-                      type="button"
-                      onClick={() => setSelectedChair(chairNum)}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border ${
-                        selectedChair === chairNum
-                          ? 'bg-gradient-to-r from-fuchsia-600 to-violet-600 text-white border-fuchsia-400 shadow-md shadow-fuchsia-500/20'
-                          : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
-                      }`}
-                    >
-                      💈 Chair #{chairNum}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Date */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-400">Select Date</label>
@@ -486,17 +443,17 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
                     Calculating empty slots...
                   </div>
                 ) : slots.length > 0 ? (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[200px] overflow-y-auto pr-1">
+                  <div className="grid grid-cols-4 gap-2 max-h-[160px] overflow-y-auto pr-1">
                     {slots.map((slot) => (
                       <button
                         key={slot.time}
                         type="button"
                         disabled={!slot.available}
                         onClick={() => setBookingTime(slot.time)}
-                        title={slot.breakName || (slot.chairName ? `Assigned to ${slot.chairName}` : undefined)}
-                        className={`py-2 px-1 rounded-xl text-[10px] sm:text-xs font-bold transition-all duration-300 border flex flex-col items-center justify-center ${
+                        title={slot.breakName || undefined}
+                        className={`py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all duration-300 border ${
                           bookingTime === slot.time
-                            ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white border-violet-400 shadow-lg shadow-violet-500/20'
+                            ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white border-violet-400'
                             : slot.breakName
                             ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 cursor-not-allowed opacity-75'
                             : slot.available
@@ -504,14 +461,7 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
                             : 'bg-slate-950 text-slate-650 border-slate-900 cursor-not-allowed opacity-40'
                         }`}
                       >
-                        <span>{getSlotLabel(slot)}</span>
-                        {slot.available && slot.chairNumber && (
-                          <span className={`text-[9px] font-extrabold mt-0.5 px-1.5 py-0.5 rounded ${
-                            bookingTime === slot.time ? 'bg-black/30 text-white' : 'bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20'
-                          }`}>
-                            Chair #{slot.chairNumber}
-                          </span>
-                        )}
+                        {getSlotLabel(slot)}
                       </button>
                     ))}
                   </div>
@@ -519,27 +469,6 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
                   <p className="text-xs text-slate-500 py-2">No slots available for the selected date.</p>
                 )}
               </div>
-
-              {/* Selected Slot Chair Summary Callout */}
-              {bookingTime && (
-                <div className="p-3 bg-violet-600/10 border border-violet-500/30 rounded-xl text-xs flex justify-between items-center animate-fade-in">
-                  <div>
-                    <span className="text-[9px] text-violet-400 font-bold uppercase tracking-wider block">Assigned Slot & Chair</span>
-                    <span className="font-extrabold text-white text-xs">
-                      {formatTime12Hr(bookingTime)}
-                    </span>
-                  </div>
-                  {slots.find(s => s.time === bookingTime)?.chairName ? (
-                    <span className="px-2.5 py-1 rounded-lg bg-fuchsia-500/20 border border-fuchsia-500/40 text-fuchsia-300 font-extrabold text-xs">
-                      {slots.find(s => s.time === bookingTime)?.chairName}
-                    </span>
-                  ) : (
-                    <span className="px-2.5 py-1 rounded-lg bg-fuchsia-500/20 border border-fuchsia-500/40 text-fuchsia-300 font-extrabold text-xs">
-                      Chair #1
-                    </span>
-                  )}
-                </div>
-              )}
 
               {/* Submit */}
               <button

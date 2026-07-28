@@ -436,10 +436,6 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
             <span className="text-slate-200 font-bold">{formatTime12Hr(appointment?.bookingTime?.substring(0, 5))}</span>
           </div>
           <div className="flex justify-between py-2 border-b border-slate-900">
-            <span>Assigned Chair</span>
-            <span className="text-fuchsia-300 font-extrabold">Chair #{appointment?.chairNumber || queueStatus?.chairNumber || 1}</span>
-          </div>
-          <div className="flex justify-between py-2 border-b border-slate-900">
             <span>Status</span>
             <span className="text-violet-400 font-bold">{appointment?.status}</span>
           </div>
