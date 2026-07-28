@@ -210,6 +210,10 @@ const Appointments = ({ onSelectAppointment }) => {
                         <Clock className="w-3 h-3 text-slate-600" />
                         {formatTime12Hr(apt.bookingTime?.substring(0, 5))}
                       </span>
+                      <span>•</span>
+                      <span className="px-1.5 py-0.5 rounded bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20 font-bold text-[9px]">
+                        Chair #{apt.chairNumber || 1}
+                      </span>
                     </p>
                   </div>
                 </div>
