@@ -27,6 +27,8 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
   const [selectedService, setSelectedService] = useState(null);
   const [bookingDate, setBookingDate] = useState(new Date().toISOString().split('T')[0]);
   const [bookingTime, setBookingTime] = useState('09:00');
+  const [chairs, setChairs] = useState([]);
+  const [selectedChairId, setSelectedChairId] = useState(null);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState('');
   const [slots, setSlots] = useState([]);
@@ -80,11 +82,19 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
     }
   };
 
+  const fetchChairs = async () => {
+    try {
+      const res = await api.get(`/api/salons/${salonId}/chairs/active`);
+      setChairs(res.data.data || []);
+    } catch (err) {}
+  };
+
   const fetchSlots = async () => {
     if (!selectedService || !bookingDate) return;
     try {
       setSlotsLoading(true);
-      const res = await api.get(`/api/salons/${salonId}/slots?date=${bookingDate}&serviceId=${selectedService.id}`);
+      const chairParam = selectedChairId ? `&preferredChairId=${selectedChairId}` : '';
+      const res = await api.get(`/api/salons/${salonId}/slots?date=${bookingDate}&serviceId=${selectedService.id}${chairParam}`);
       setSlots(res.data.data);
       
       const availableSlots = res.data.data.filter(s => s.available);
@@ -101,12 +111,15 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
   };
 
   useEffect(() => {
-    if (salonId) fetchSalonDetails();
+    if (salonId) {
+      fetchSalonDetails();
+      fetchChairs();
+    }
   }, [salonId]);
 
   useEffect(() => {
     fetchSlots();
-  }, [selectedService, bookingDate]);
+  }, [selectedService, bookingDate, selectedChairId]);
 
   const handleBookSlot = async (e) => {
     e.preventDefault();
@@ -123,6 +136,7 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
         serviceId: selectedService.id,
         bookingDate,
         bookingTime: bookingTime + ":00", // Format to LocalTime HH:mm:ss
+        preferredChairId: selectedChairId,
         lang: currentLang
       };
 
@@ -433,6 +447,40 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
                   />
                 </div>
               </div>
+
+              {/* Chair / Barber Preference Selector */}
+              {chairs.length > 1 && (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-400">Select Barber / Chair Preference</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedChairId(null)}
+                      className={`p-2.5 rounded-xl border text-xs font-bold transition-all text-left ${
+                        selectedChairId === null
+                          ? 'bg-violet-600 border-violet-500 text-white shadow-lg'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      ✨ Any Chair (Auto)
+                    </button>
+                    {chairs.map((chair) => (
+                      <button
+                        key={chair.id}
+                        type="button"
+                        onClick={() => setSelectedChairId(chair.id)}
+                        className={`p-2.5 rounded-xl border text-xs font-bold transition-all text-left truncate ${
+                          selectedChairId === chair.id
+                            ? 'bg-violet-600 border-violet-500 text-white shadow-lg'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        💈 {chair.barberName ? `${chair.name} (${chair.barberName})` : chair.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Time Slots Grid */}
               <div className="space-y-1.5">

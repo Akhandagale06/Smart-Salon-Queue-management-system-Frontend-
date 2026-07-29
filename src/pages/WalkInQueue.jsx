@@ -172,9 +172,16 @@ const WalkInQueue = ({ salonId, onReset }) => {
             <>
               {/* Tracker Widget */}
               <div className="text-center space-y-2">
-                <span className="text-[10px] font-extrabold px-3 py-1 bg-violet-600/10 border border-violet-500/20 text-violet-400 rounded-full uppercase tracking-wider">
-                  {t('walkin.token', { defaultValue: 'टोकन #' })} {trackerData?.queueNumber || '...'}
-                </span>
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-extrabold px-3 py-1 bg-violet-600/10 border border-violet-500/20 text-violet-400 rounded-full uppercase tracking-wider">
+                    {t('walkin.token', { defaultValue: 'टोकन #' })} {trackerData?.queueNumber || '...'}
+                  </span>
+                  {trackerData?.assignedChairName && (
+                    <span className="text-[10px] font-extrabold px-3 py-1 bg-white text-slate-900 border border-slate-200 rounded-full uppercase tracking-wider shadow-sm">
+                      💈 {trackerData.assignedChairName} {trackerData.barberName ? `(${trackerData.barberName})` : ''}
+                    </span>
+                  )}
+                </div>
                 
                 {isServing || trackerData?.position === 1 ? (
                   <div className="space-y-2 py-4 text-center">
@@ -190,7 +197,9 @@ const WalkInQueue = ({ salonId, onReset }) => {
                   </div>
                 ) : (
                   <div className="space-y-1 py-4">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{t('walkin.currentPosition', { defaultValue: 'रांगेतील स्थान (Current Position)' })}</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                      {t('walkin.currentPosition', { defaultValue: 'रांगेतील स्थान' })} {trackerData?.assignedChairName ? `(${trackerData.assignedChairName})` : ''}
+                    </p>
                     <h1 className="text-6xl font-black bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent tracking-tight">
                       {trackerData?.position !== undefined ? trackerData.position : '...'}
                     </h1>

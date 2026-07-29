@@ -437,7 +437,23 @@
 }
 
 .theme-light .text-violet-300 {
-  color: #5b21b6 !important;
+  color: #0f172a !important;
+}
+
+.theme-light .text-violet-200,
+.theme-light .text-violet-100 {
+  color: #0f172a !important;
+}
+
+/* Notice banner light mode styling */
+.theme-light .bg-violet-500\/10 {
+  background-color: #f3e8ff !important;
+  border-color: #d8b4fe !important;
+}
+
+.theme-light .bg-violet-500\/10 p,
+.theme-light .bg-violet-500\/10 span {
+  color: #0f172a !important;
 }
 
 .theme-light .text-emerald-400 {

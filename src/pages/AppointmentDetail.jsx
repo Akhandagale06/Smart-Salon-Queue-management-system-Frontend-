@@ -32,6 +32,8 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
   const [newDate, setNewDate] = useState('');
   const [newTime, setNewTime] = useState('');
+  const [newChairId, setNewChairId] = useState(null);
+  const [chairs, setChairs] = useState([]);
   const [error, setError] = useState('');
 
   const formatTime12Hr = (time24) => {
@@ -104,26 +106,26 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
 
     if (activeBreak) {
       return (
-        <div className="flex flex-col items-center py-3 px-4 bg-amber-950/40 border border-amber-500/40 rounded-2xl space-y-3 shadow-inner my-2">
+        <div className="flex flex-col items-center py-4 px-5 bg-gradient-to-b from-amber-500/20 to-amber-950/80 border-2 border-amber-400/60 rounded-2xl space-y-3 shadow-2xl my-3 max-w-sm mx-auto">
           <div className="relative">
-            <div className="absolute inset-0 bg-amber-500 rounded-full blur-lg opacity-40 animate-pulse"></div>
-            <div className="relative w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-amber-400 shadow-lg shadow-amber-500/30">
-              <Coffee className="w-8 h-8 animate-bounce" />
+            <div className="absolute inset-0 bg-amber-400 rounded-full blur-xl opacity-60 animate-pulse"></div>
+            <div className="relative w-14 h-14 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center text-slate-950 shadow-xl">
+              <Coffee className="w-7 h-7 text-slate-950 animate-bounce" />
               <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-400"></span>
               </span>
             </div>
           </div>
-          <div className="text-center space-y-1">
-            <p className="text-xs font-black text-amber-400 animate-pulse uppercase tracking-wider flex items-center justify-center gap-1.5">
-              <span>☕ SALON IS CURRENTLY ON BREAK</span>
+          <div className="text-center space-y-1.5">
+            <p className="text-xs font-black text-amber-300 animate-pulse uppercase tracking-wider flex items-center justify-center gap-1.5">
+              <span>{t('detail.salonOnBreak')}</span>
             </p>
-            <p className="text-xs text-slate-200 font-bold">
-              {activeBreak.name || 'Salon Break'} ({formatTime12Hr(activeBreak.startTime?.substring(0, 5))} - {formatTime12Hr(activeBreak.endTime?.substring(0, 5))})
+            <p className="text-sm font-black text-white">
+              {activeBreak.name || t('detail.salonBreakActive')} ({formatTime12Hr(activeBreak.startTime?.substring(0, 5))} - {formatTime12Hr(activeBreak.endTime?.substring(0, 5))})
             </p>
-            <p className="text-[10px] text-slate-400 max-w-xs mx-auto pt-0.5">
-              Salon staff is taking a break. Live queue progress will resume automatically once break ends!
+            <p className="text-xs text-white/90 font-medium max-w-xs mx-auto pt-0.5 leading-relaxed">
+              {t('detail.salonBreakDesc')}
             </p>
           </div>
         </div>
@@ -142,15 +144,18 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
           </div>
           <div className="text-center">
             <p className="text-base sm:text-lg font-black text-emerald-400 animate-pulse uppercase tracking-wider">
-              {isServing ? 'YOU ARE BEING SERVED!' : "IT'S YOUR TURN!"}
+              {isServing ? t('detail.beingServedTitle') : t('detail.yourTurnTitle')}
             </p>
             <p className="text-xs sm:text-sm text-slate-200 font-bold mt-1">
-              {isServing ? 'Your service is currently in progress.' : 'Please proceed to the grooming chair.'}
+              {isServing ? t('detail.beingServedSub') : t('detail.yourTurnSub')}
             </p>
           </div>
         </div>
       );
     }
+
+    const chairLabel = queueStatus?.assignedChairName || t('detail.serving');
+    const aheadCount = Math.max(0, position - 1);
 
     return (
       <div className="py-4 px-2 w-full max-w-xs mx-auto">
@@ -168,15 +173,15 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
               </span>
               <Scissors className="w-3.5 h-3.5" />
             </div>
-            <span className="text-[9px] font-bold text-emerald-400 mt-2">Serving</span>
+            <span className="text-[9px] font-black text-emerald-400 mt-2 truncate max-w-[75px] text-center">{chairLabel}</span>
           </div>
 
           {/* Node 2: Ahead */}
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400">
-              <span className="text-xs font-bold font-sans">{position - 1}</span>
+              <span className="text-xs font-bold font-sans">{aheadCount}</span>
             </div>
-            <span className="text-[9px] font-bold text-slate-400 mt-2">Ahead</span>
+            <span className="text-[9px] font-bold text-slate-400 mt-2">{t('detail.aheadLabel')}</span>
           </div>
 
           {/* Node 3: You */}
@@ -185,7 +190,7 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
               <span className="absolute -inset-1 rounded-full border border-violet-400/30 animate-pulse"></span>
               <User className="w-4 h-4" />
             </div>
-            <span className="text-[9px] font-extrabold text-violet-400 mt-1.5 uppercase tracking-wide">You</span>
+            <span className="text-[9px] font-extrabold text-violet-300 mt-1.5 uppercase tracking-wide">{t('detail.youLabel')} (#{position})</span>
           </div>
         </div>
       </div>
@@ -273,7 +278,8 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
       await api.put(`/api/appointments/${appointmentId}/reschedule`, {
         newDate,
         newTime: formattedTime,
-        lang: currentLang
+        lang: currentLang,
+        preferredChairId: newChairId
       });
       setRescheduleOpen(false);
       fetchDetails();
@@ -293,7 +299,8 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
     try {
       setSlotsLoading(true);
       const serviceParam = appointment.serviceId ? `&serviceId=${appointment.serviceId}` : '';
-      const res = await api.get(`/api/salons/${appointment.salonId}/slots?date=${newDate}${serviceParam}&excludeAppointmentId=${appointmentId}`);
+      const chairParam = newChairId ? `&preferredChairId=${newChairId}` : '';
+      const res = await api.get(`/api/salons/${appointment.salonId}/slots?date=${newDate}${serviceParam}${chairParam}&excludeAppointmentId=${appointmentId}`);
       const fetchedSlots = res.data?.data || [];
       setSlots(fetchedSlots);
       
@@ -315,11 +322,33 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
     }
   };
 
+  const fetchChairsForReschedule = async () => {
+    if (!appointment?.salonId) return;
+    try {
+      const res = await api.get(`/api/salons/${appointment.salonId}/chairs/active`);
+      const fetchedChairs = res.data?.data || [];
+      setChairs(fetchedChairs);
+      // Pre-select the appointment's current preferred chair if it exists
+      if (fetchedChairs.length > 0) {
+        setNewChairId(appointment?.preferredChairId || null);
+      }
+    } catch (err) {
+      console.error('Failed to load chairs for reschedule:', err);
+      setChairs([]);
+    }
+  };
+
   useEffect(() => {
     if (rescheduleOpen && newDate) {
       fetchSlotsForReschedule();
     }
-  }, [newDate, rescheduleOpen]);
+  }, [newDate, newChairId, rescheduleOpen]);
+
+  useEffect(() => {
+    if (rescheduleOpen) {
+      fetchChairsForReschedule();
+    }
+  }, [rescheduleOpen]);
 
   if (loading) {
     return (
@@ -333,14 +362,15 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
   const isCancellable = ['BOOKED', 'CONFIRMED', 'WAITING', 'LATE'].includes(appointment?.status);
 
   return (
-    <div className="space-y-6 pb-24 animate-fade-in">
+    <div className="flex justify-center">
+    <div className="max-w-2xl w-full  space-y-6 pb-24 animate-fade-in">
       {/* Back button */}
       <button
         onClick={onBack}
         className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to appointments
+        {t('detail.back')}
       </button>
 
       {/* Live tracker widget if today */}
@@ -356,42 +386,49 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
               </button>
             </div>
 
-            <span className={`live-queue-badge text-[10px] font-extrabold uppercase tracking-widest ${activeBreak ? 'text-amber-400 animate-pulse' : ''}`}>
+            <span className={`text-xs font-black uppercase tracking-widest ${activeBreak ? 'text-amber-300 animate-pulse' : 'text-white'}`}>
               {activeBreak ? `☕ ${t('detail.salonBreakActive')}` : t('detail.liveQueuePosition')}
             </span>
 
             <div className="flex items-center justify-center gap-8 py-1">
               <div>
-                <span className="live-queue-label text-[10px] uppercase font-bold">
+                <span className="text-[11px] uppercase font-extrabold text-white/90 tracking-wider">
                   {appointment?.status === 'IN_SERVICE' ? t('detail.serving') : t('detail.position')}
                 </span>
-                <p className="live-queue-value text-3xl font-black">
+                <p className="text-4xl font-black text-white drop-shadow-md">
                   {appointment?.status === 'IN_SERVICE' ? t('detail.serving') : (queueStatus.position || '1')}
                 </p>
               </div>
-              <div className="h-10 border-l border-white/20"></div>
+              <div className="h-10 border-l border-white/30"></div>
               <div>
-                <span className="live-queue-label text-[10px] uppercase font-bold">{t('detail.token')}</span>
-                <p className="live-queue-value text-4xl font-black">#{queueStatus.queueNumber}</p>
+                <span className="text-[11px] uppercase font-extrabold text-white/90 tracking-wider">{t('detail.token')}</span>
+                <p className="text-4xl font-black text-white drop-shadow-md">#{queueStatus.queueNumber}</p>
               </div>
             </div>
+
+            {queueStatus.assignedChairName && (
+              <div className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-white text-slate-900 border border-slate-200 rounded-full text-xs font-extrabold shadow-md">
+                <span>💈 {queueStatus.assignedChairName}</span>
+                {queueStatus.barberName && <span>({queueStatus.barberName})</span>}
+              </div>
+            )}
 
             {/* Animated Queue Track visualization */}
             {renderQueueTrack()}
 
             {/* Wait Time Indicator */}
-            <div className={`live-queue-wait-pill p-3 rounded-2xl inline-flex items-center gap-2 ${activeBreak ? 'bg-amber-950/80 border-amber-500/40 text-amber-300' : ''}`}>
+            <div className="live-queue-wait-pill px-4 py-2.5 rounded-2xl inline-flex items-center gap-2 bg-white text-slate-900 border border-slate-200 font-bold shadow-md">
               {activeBreak ? (
                 <>
-                  <Coffee className="w-4 h-4 text-amber-400 animate-bounce" />
-                  <span className="text-xs font-bold">
+                  <Coffee className="w-4 h-4 text-amber-600 animate-bounce shrink-0" />
+                  <span className="text-xs font-black text-slate-900">
                     Queue Paused (Break in Progress) • {t('detail.estimatedWait')}: {formatWaitTime(queueStatus.estimatedWaitingTime || 0, t)}
                   </span>
                 </>
               ) : (
                 <>
-                  <Hourglass className="w-4 h-4 text-violet-300 animate-spin" />
-                  <span className="text-xs font-semibold">
+                  <Hourglass className="w-4 h-4 text-violet-600 animate-spin shrink-0" />
+                  <span className="text-xs font-black text-slate-900">
                     {t('detail.estimatedWait')}: {formatWaitTime(queueStatus.estimatedWaitingTime || 0, t)}
                   </span>
                 </>
@@ -416,27 +453,27 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
 
       {/* Appointment Information Card */}
       <div className="glass-card rounded-3xl p-6 space-y-4">
-        <h3 className="font-bold text-white text-base">Booking Summary</h3>
+        <h3 className="font-bold text-white text-base">{t('detail.bookingSummary')}</h3>
         
         <div className="space-y-3 text-xs text-slate-400 font-medium">
           <div className="flex justify-between py-2 border-b border-slate-900">
-            <span>Salon</span>
+            <span>{t('detail.salonLabel')}</span>
             <span className="text-slate-200 font-bold">{appointment?.salonName || 'Royal Cuts'}</span>
           </div>
           <div className="flex justify-between py-2 border-b border-slate-900">
-            <span>Service</span>
+            <span>{t('detail.serviceLabel')}</span>
             <span className="text-slate-200 font-bold">{formatServiceName(appointment?.serviceName || 'Haircut', t)}</span>
           </div>
           <div className="flex justify-between py-2 border-b border-slate-900">
-            <span>Scheduled Date</span>
+            <span>{t('detail.scheduledDate')}</span>
             <span className="text-slate-200 font-bold">{formatDateDMY(appointment?.bookingDate)}</span>
           </div>
           <div className="flex justify-between py-2 border-b border-slate-900">
-            <span>Scheduled Time</span>
+            <span>{t('detail.scheduledTime')}</span>
             <span className="text-slate-200 font-bold">{formatTime12Hr(appointment?.bookingTime?.substring(0, 5))}</span>
           </div>
           <div className="flex justify-between py-2 border-b border-slate-900">
-            <span>Status</span>
+            <span>{t('detail.statusLabel')}</span>
             <span className="text-violet-400 font-bold">{appointment?.status}</span>
           </div>
         </div>
@@ -447,10 +484,10 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
         <div className="glass-card rounded-3xl p-6 space-y-4">
           <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
             <Clock className="w-4.5 h-4.5 text-violet-400" />
-            Running Late?
+            {t('detail.runningLateTitle')}
           </h3>
           <p className="text-xs text-slate-400 font-medium">
-            Tap to notify the salon. The system will adjust your queue position to prevent cancellation.
+            {t('detail.runningLateDesc')}
           </p>
 
           <div className="grid grid-cols-2 gap-4">
@@ -459,14 +496,14 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
               disabled={lateLoading}
               className="py-3 rounded-xl border border-slate-850 hover:bg-slate-800/40 text-slate-200 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
             >
-              10 Minutes Late
+              {t('detail.lateMinutes', { min: 10 })}
             </button>
             <button
               onClick={() => handleRunningLate(15)}
               disabled={lateLoading}
               className="py-3 rounded-xl border border-slate-850 hover:bg-slate-800/40 text-slate-200 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
             >
-              15 Minutes Late
+              {t('detail.lateMinutes', { min: 15 })}
             </button>
           </div>
         </div>
@@ -484,7 +521,7 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
               }}
               className="flex-1 py-3.5 rounded-xl border border-slate-850 hover:bg-slate-800/40 text-slate-200 font-bold text-xs flex items-center justify-center transition-colors"
             >
-              Reschedule Appointment
+              {t('detail.rescheduleBtn')}
             </button>
             
             <button
@@ -497,7 +534,7 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
               ) : (
                 <>
                   <Trash2 className="w-4.5 h-4.5" />
-                  Cancel Appointment
+                  {t('detail.cancelBtn')}
                 </>
               )}
             </button>
@@ -510,7 +547,7 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
           <div className="w-full max-w-md glass-modal rounded-3xl overflow-hidden shadow-2xl relative">
             <div className="flex items-center justify-between p-6 border-b border-slate-800">
-              <h3 className="text-lg font-bold text-white">Reschedule Appointment</h3>
+              <h3 className="text-lg font-bold text-white">{t('detail.rescheduleTitle')}</h3>
               <button
                 onClick={() => setRescheduleOpen(false)}
                 className="p-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-slate-400"
@@ -522,7 +559,7 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
             <form onSubmit={handleReschedule} className="p-6 space-y-4">
               {/* Date */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-350">Choose New Date</label>
+                <label className="text-xs font-semibold text-slate-350">{t('detail.chooseNewDate')}</label>
                 <input
                   type="date"
                   min={new Date().toISOString().split('T')[0]}
@@ -532,13 +569,57 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
                 />
               </div>
 
+              {/* Chair Preference */}
+              {chairs.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-350">{t('detail.chooseChair', { defaultValue: 'Choose Chair (Optional)' })}</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Any Chair option */}
+                    <button
+                      type="button"
+                      onClick={() => setNewChairId(null)}
+                      className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all duration-200 flex items-center gap-2 ${
+                        newChairId === null
+                          ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white border-violet-400 shadow-lg shadow-violet-500/20'
+                          : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
+                      }`}
+                    >
+                      <span className="text-base">✨</span>
+                      <span>{t('detail.anyChair', { defaultValue: 'Any Chair' })}</span>
+                    </button>
+                    {chairs.map(chair => (
+                      <button
+                        key={chair.id}
+                        type="button"
+                        onClick={() => setNewChairId(chair.id)}
+                        className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all duration-200 flex flex-col items-start gap-0.5 ${
+                          newChairId === chair.id
+                            ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white border-violet-400 shadow-lg shadow-violet-500/20'
+                            : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
+                        }`}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-sm">💈</span>
+                          <span>{chair.chairName || `Chair ${chair.chairNumber}`}</span>
+                        </span>
+                        {chair.barberName && (
+                          <span className={`text-[10px] font-medium pl-5 ${
+                            newChairId === chair.id ? 'text-violet-200' : 'text-slate-500'
+                          }`}>{chair.barberName}</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Time Slots Grid */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-350">Choose New Time</label>
+                <label className="text-xs font-semibold text-slate-350">{t('detail.chooseNewTime')}</label>
                 {slotsLoading ? (
                   <div className="flex items-center gap-2 py-3 text-xs text-slate-400">
                     <Loader className="w-4 h-4 animate-spin text-violet-500" />
-                    Calculating empty slots...
+                    {t('detail.calculatingSlots')}
                   </div>
                 ) : slots.length > 0 ? (
                   <div className="grid grid-cols-4 gap-2 max-h-[160px] overflow-y-auto pr-1">
@@ -572,7 +653,7 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
                     })}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-500 py-2">No slots available for the selected date.</p>
+                  <p className="text-xs text-slate-500 py-2">{t('detail.noSlots')}</p>
                 )}
               </div>
 
@@ -583,14 +664,14 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
                   onClick={() => setRescheduleOpen(false)}
                   className="flex-1 py-3 rounded-xl border border-slate-805 text-slate-300 font-semibold text-sm"
                 >
-                  Cancel
+                  {t('detail.cancelModalBtn')}
                 </button>
                 <button
                   type="submit"
                   disabled={rescheduleLoading}
                   className="flex-1 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-sm"
                 >
-                  {rescheduleLoading ? <Loader className="w-4 h-4 animate-spin" /> : 'Confirm'}
+                  {rescheduleLoading ? <Loader className="w-4 h-4 animate-spin" /> : t('detail.confirmBtn')}
                 </button>
               </div>
             </form>
@@ -598,7 +679,10 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
         </div>
       )}
     </div>
+    </div> 
+    
   );
+  
 };
 
 export default AppointmentDetail;
