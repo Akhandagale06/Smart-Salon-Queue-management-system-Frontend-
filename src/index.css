@@ -227,6 +227,30 @@
   box-shadow: 0 12px 36px rgba(124, 58, 237, 0.3) !important;
 }
 
+.theme-light .live-queue-card,
+.theme-light .live-queue-card *,
+.theme-light .live-queue-card h3,
+.theme-light .live-queue-card p,
+.theme-light .live-queue-card span,
+.theme-light .live-queue-card div {
+  color: #ffffff !important;
+}
+
+/* Chair Pill, White badges & Ahead count node text override: must be solid black */
+.theme-light .live-queue-card .bg-white,
+.theme-light .live-queue-card .bg-white *,
+.theme-light .live-queue-card .chair-pill,
+.theme-light .live-queue-card .chair-pill *,
+.live-queue-card .bg-white,
+.live-queue-card .bg-white *,
+.chair-pill,
+.chair-pill *,
+.ahead-count-node,
+.ahead-count-node * {
+  color: #0f172a !important;
+  font-weight: 900 !important;
+}
+
 .theme-light .live-queue-badge {
   color: #ddd6fe !important; /* Bright crisp lilac text */
   font-weight: 900 !important;
@@ -252,15 +276,13 @@
   font-weight: 700 !important;
 }
 
-.theme-light .live-queue-wait-pill {
-  background-color: rgba(15, 23, 42, 0.4) !important; /* Dark contrast pill */
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
-  color: #ffffff !important; /* Pure white wait time text */
-  font-weight: 800 !important;
-}
-
+.live-queue-wait-pill,
+.live-queue-wait-pill *,
+.live-queue-wait-pill span,
+.theme-light .live-queue-wait-pill,
 .theme-light .live-queue-wait-pill * {
   color: #ffffff !important;
+  font-weight: 900 !important;
 }
 
 .theme-light .live-queue-break-banner {

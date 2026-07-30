@@ -12,7 +12,9 @@ import {
   Loader,
   Play,
   Scissors,
-  Coffee
+  Coffee,
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 import api from '../config/api';
 import { formatServiceName } from '../utils/serviceTranslator';
@@ -98,11 +100,69 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
     return null;
   };
 
+  const getMinutesUntilAppointment = () => {
+    if (!appointment?.bookingDate || !appointment?.bookingTime) return null;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (appointment.bookingDate !== todayStr) return null;
+
+    const [h, m] = appointment.bookingTime.split(':').map(Number);
+    const now = new Date();
+    const apptTime = new Date();
+    apptTime.setHours(h, m, 0, 0);
+
+    if (appointment.lateByMinutes) {
+      apptTime.setMinutes(apptTime.getMinutes() + appointment.lateByMinutes);
+    }
+
+    const diffMs = apptTime - now;
+    return Math.round(diffMs / (1000 * 60));
+  };
+
   const renderQueueTrack = () => {
+    const isCompleted = appointment?.status === 'COMPLETED';
+    const isServing = appointment?.status === 'IN_SERVICE';
+
+    if (isCompleted) {
+      return (
+        <div className="live-queue-card flex flex-col items-center py-4 px-5 bg-gradient-to-b from-emerald-950/80 via-slate-900/90 to-emerald-950/60 border-2 border-emerald-500/50 rounded-3xl space-y-3.5 shadow-2xl my-2 max-w-sm mx-auto animate-fade-in relative overflow-hidden text-white">
+          {/* Glow Effects */}
+          <div className="absolute -top-10 -right-10 w-28 h-28 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none animate-pulse"></div>
+          <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none animate-pulse"></div>
+
+          {/* Animated Icon */}
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full blur-md opacity-60 bg-emerald-400 animate-pulse"></div>
+            <div className="relative w-14 h-14 rounded-full border-2 border-emerald-400 bg-emerald-600/30 flex items-center justify-center shadow-xl text-emerald-300">
+              <CheckCircle2 className="w-8 h-8 text-emerald-300 animate-bounce" />
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
+              </span>
+            </div>
+          </div>
+
+          {/* Text Content */}
+          <div className="text-center space-y-1">
+            <p className="text-xs sm:text-sm text-white font-semibold max-w-xs mx-auto leading-relaxed">
+              {t('detail.serviceCompletedSub')}
+            </p>
+          </div>
+
+          {/* Footer thank you notice */}
+          <div className="w-full pt-2 border-t border-emerald-500/20 text-center">
+            <p className="text-[10px] text-emerald-300 font-bold flex items-center justify-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
+              <span>{t('detail.thankYouNotice')}</span>
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     if (!queueStatus) return null;
     const activeBreak = getActiveBreak();
     const position = queueStatus.position || 1;
-    const isServing = appointment?.status === 'IN_SERVICE';
 
     if (activeBreak) {
       return (
@@ -132,7 +192,7 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
       );
     }
 
-    if (isServing || position === 1) {
+    if (isServing) {
       return (
         <div className="flex flex-col items-center py-2 space-y-3">
           <div className="relative">
@@ -144,10 +204,89 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
           </div>
           <div className="text-center">
             <p className="text-base sm:text-lg font-black text-emerald-400 animate-pulse uppercase tracking-wider">
-              {isServing ? t('detail.beingServedTitle') : t('detail.yourTurnTitle')}
+              {t('detail.beingServedTitle')}
             </p>
             <p className="text-xs sm:text-sm text-slate-200 font-bold mt-1">
-              {isServing ? t('detail.beingServedSub') : t('detail.yourTurnSub')}
+              {t('detail.beingServedSub')}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    if (position === 1) {
+      const minsUntil = getMinutesUntilAppointment();
+      // If appointment slot is in the future (> 2 mins away) and no one is ahead in queue
+      if (minsUntil !== null && minsUntil > 2) {
+        const formattedSlot = formatTime12Hr(appointment.bookingTime);
+        const isSoon = minsUntil <= 10;
+
+        return (
+          <div className="live-queue-card flex flex-col items-center py-4 px-5 bg-gradient-to-b from-violet-900/40 via-slate-900/90 to-fuchsia-950/50 border-2 border-violet-500/40 rounded-3xl space-y-3.5 shadow-2xl my-2 max-w-sm mx-auto animate-fade-in relative overflow-hidden text-white">
+            {/* Glow Effects */}
+            <div className="absolute -top-10 -right-10 w-28 h-28 bg-violet-500/20 rounded-full blur-2xl pointer-events-none animate-pulse"></div>
+            <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-fuchsia-500/20 rounded-full blur-2xl pointer-events-none animate-pulse"></div>
+
+            {/* Header Pill */}
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-violet-500/20 border border-violet-400/30 rounded-full text-white text-[10px] font-extrabold uppercase tracking-wider">
+              <Hourglass className="w-3.5 h-3.5 text-violet-400 animate-spin" style={{ animationDuration: '6s' }} />
+              <span className="text-white font-black">{t('detail.noOneAheadTitle')}</span>
+            </div>
+
+            {/* Animated Icon */}
+            <div className="relative">
+              <div className={`absolute inset-0 rounded-full blur-md opacity-50 animate-pulse ${isSoon ? 'bg-amber-400' : 'bg-violet-500'}`}></div>
+              <div className={`relative w-14 h-14 rounded-full border-2 flex items-center justify-center shadow-xl ${isSoon ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-violet-600/20 border-violet-400 text-violet-300'}`}>
+                <Clock className="w-7 h-7 animate-bounce text-white" />
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isSoon ? 'bg-amber-300' : 'bg-violet-400'}`}></span>
+                  <span className={`relative inline-flex rounded-full h-3 w-3 ${isSoon ? 'bg-amber-400' : 'bg-violet-500'}`}></span>
+                </span>
+              </div>
+            </div>
+
+            {/* Text Content */}
+            <div className="text-center space-y-1">
+              <h3 className="text-base sm:text-lg font-black tracking-tight text-white drop-shadow-sm animate-pulse">
+                {isSoon
+                  ? t('detail.yourTurnComesInSoon', { min: minsUntil })
+                  : t('detail.yourTurnComesIn', { min: minsUntil, time: formattedSlot })
+                }
+              </h3>
+              <p className="text-xs text-white font-semibold max-w-xs mx-auto leading-relaxed">
+                {isSoon
+                  ? t('detail.getReadySub', { min: minsUntil, time: formattedSlot })
+                  : t('detail.noOneAheadSub', { time: formattedSlot })
+                }
+              </p>
+            </div>
+
+            {/* Footer Alert notice */}
+            <div className="w-full pt-2 border-t border-violet-500/20 text-center">
+              <p className="text-[10px] text-white font-bold flex items-center justify-center gap-1">
+                <span>📢</span>
+                <span className="text-white">{t('detail.getReadyAlertNotice')}</span>
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex flex-col items-center py-2 space-y-3">
+          <div className="relative">
+            <div className="absolute inset-0 bg-emerald-500 rounded-full blur-md opacity-30 animate-pulse"></div>
+            <div className="relative w-14 h-14 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center text-emerald-400">
+              <Play className="w-7 h-7 fill-current animate-ping absolute opacity-20" />
+              <Scissors className="w-7 h-7 rotate-90" />
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-base sm:text-lg font-black text-emerald-400 animate-pulse uppercase tracking-wider">
+              {t('detail.yourTurnTitle')}
+            </p>
+            <p className="text-xs sm:text-sm text-slate-200 font-bold mt-1">
+              {t('detail.yourTurnSub')}
             </p>
           </div>
         </div>
@@ -178,10 +317,10 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
 
           {/* Node 2: Ahead */}
           <div className="relative z-10 flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400">
-              <span className="text-xs font-bold font-sans">{aheadCount}</span>
+            <div className="ahead-count-node w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center shadow-md">
+              <span className="text-xs font-black text-slate-950 font-sans">{aheadCount}</span>
             </div>
-            <span className="text-[9px] font-bold text-slate-400 mt-2">{t('detail.aheadLabel')}</span>
+            <span className="text-[9px] font-extrabold text-white mt-2 uppercase tracking-wide">{t('detail.aheadLabel')}</span>
           </div>
 
           {/* Node 3: You */}
@@ -374,9 +513,10 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
       </button>
 
       {/* Live tracker widget if today */}
-      {isToday && queueStatus && (() => {
+      {isToday && (queueStatus || appointment?.status === 'COMPLETED') && (() => {
         const activeBreak = getActiveBreak();
         const upcomingBreak = getUpcomingBreak();
+        const isCompleted = appointment?.status === 'COMPLETED';
 
         return (
           <div className="live-queue-card p-6 rounded-3xl text-center space-y-4 relative overflow-hidden shadow-xl transition-all duration-500">
@@ -386,57 +526,63 @@ const AppointmentDetail = ({ appointmentId, onBack, onCancelSuccess }) => {
               </button>
             </div>
 
-            <span className={`text-xs font-black uppercase tracking-widest ${activeBreak ? 'text-amber-300 animate-pulse' : 'text-white'}`}>
-              {activeBreak ? `☕ ${t('detail.salonBreakActive')}` : t('detail.liveQueuePosition')}
-            </span>
+            {!isCompleted && (
+              <span className={`text-xs font-black uppercase tracking-widest ${activeBreak ? 'text-amber-300 animate-pulse' : 'text-white'}`}>
+                {activeBreak ? `☕ ${t('detail.salonBreakActive')}` : t('detail.liveQueuePosition')}
+              </span>
+            )}
 
-            <div className="flex items-center justify-center gap-8 py-1">
-              <div>
-                <span className="text-[11px] uppercase font-extrabold text-white/90 tracking-wider">
-                  {appointment?.status === 'IN_SERVICE' ? t('detail.serving') : t('detail.position')}
-                </span>
-                <p className="text-4xl font-black text-white drop-shadow-md">
-                  {appointment?.status === 'IN_SERVICE' ? t('detail.serving') : (queueStatus.position || '1')}
-                </p>
+            {!isCompleted && (
+              <div className="flex items-center justify-center gap-8 py-1">
+                <div>
+                  <span className="text-[11px] uppercase font-extrabold text-white/90 tracking-wider">
+                    {appointment?.status === 'IN_SERVICE' ? t('detail.serving') : t('detail.position')}
+                  </span>
+                  <p className="text-4xl font-black text-white drop-shadow-md">
+                    {appointment?.status === 'IN_SERVICE' ? t('detail.serving') : (queueStatus?.position || '1')}
+                  </p>
+                </div>
+                <div className="h-10 border-l border-white/30"></div>
+                <div>
+                  <span className="text-[11px] uppercase font-extrabold text-white/90 tracking-wider">{t('detail.token')}</span>
+                  <p className="text-4xl font-black text-white drop-shadow-md">#{appointment?.queueNumber || queueStatus?.queueNumber || '1'}</p>
+                </div>
               </div>
-              <div className="h-10 border-l border-white/30"></div>
-              <div>
-                <span className="text-[11px] uppercase font-extrabold text-white/90 tracking-wider">{t('detail.token')}</span>
-                <p className="text-4xl font-black text-white drop-shadow-md">#{queueStatus.queueNumber}</p>
-              </div>
-            </div>
+            )}
 
-            {queueStatus.assignedChairName && (
-              <div className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-white text-slate-900 border border-slate-200 rounded-full text-xs font-extrabold shadow-md">
-                <span>💈 {queueStatus.assignedChairName}</span>
-                {queueStatus.barberName && <span>({queueStatus.barberName})</span>}
+            {queueStatus?.assignedChairName && !isCompleted && (
+              <div className="chair-pill inline-flex items-center gap-1.5 px-4 py-1.5 bg-white text-slate-950 border border-slate-200 rounded-full text-xs font-black shadow-md">
+                <span className="text-slate-950 font-black">💈 {queueStatus.assignedChairName}</span>
+                {queueStatus.barberName && <span className="text-slate-950 font-black">({queueStatus.barberName})</span>}
               </div>
             )}
 
             {/* Animated Queue Track visualization */}
             {renderQueueTrack()}
 
-            {/* Wait Time Indicator */}
-            <div className="live-queue-wait-pill px-4 py-2.5 rounded-2xl inline-flex items-center gap-2 bg-white text-slate-900 border border-slate-200 font-bold shadow-md">
-              {activeBreak ? (
-                <>
-                  <Coffee className="w-4 h-4 text-amber-600 animate-bounce shrink-0" />
-                  <span className="text-xs font-black text-slate-900">
-                    Queue Paused (Break in Progress) • {t('detail.estimatedWait')}: {formatWaitTime(queueStatus.estimatedWaitingTime || 0, t)}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Hourglass className="w-4 h-4 text-violet-600 animate-spin shrink-0" />
-                  <span className="text-xs font-black text-slate-900">
-                    {t('detail.estimatedWait')}: {formatWaitTime(queueStatus.estimatedWaitingTime || 0, t)}
-                  </span>
-                </>
-              )}
-            </div>
+            {/* Wait Time Indicator (only if active) */}
+            {!isCompleted && (
+              <div className="live-queue-wait-pill px-4 py-2.5 rounded-2xl inline-flex items-center gap-2 bg-slate-900/60 border border-violet-400/30 text-white font-black shadow-lg">
+                {activeBreak ? (
+                  <>
+                    <Coffee className="w-4 h-4 text-amber-400 animate-bounce shrink-0" />
+                    <span className="text-xs font-black text-white">
+                      Queue Paused (Break in Progress) • {t('detail.estimatedWait')}: {formatWaitTime(queueStatus?.estimatedWaitingTime || 0, t)}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Hourglass className="w-4 h-4 text-violet-300 animate-spin shrink-0" />
+                    <span className="text-xs font-black text-white">
+                      {t('detail.estimatedWait')}: {formatWaitTime(queueStatus?.estimatedWaitingTime || 0, t)}
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Upcoming Break Notice if any */}
-            {upcomingBreak && !activeBreak && (
+            {upcomingBreak && !activeBreak && !isCompleted && (
               <div className="live-queue-break-banner rounded-2xl p-2.5 flex items-center justify-between gap-2 text-xs font-semibold animate-pulse">
                 <div className="flex items-center gap-2">
                   <Coffee className="w-4 h-4 text-amber-400 animate-bounce shrink-0" />

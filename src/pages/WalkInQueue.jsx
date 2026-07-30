@@ -177,7 +177,7 @@ const WalkInQueue = ({ salonId, onReset }) => {
                     {t('walkin.token', { defaultValue: 'टोकन #' })} {trackerData?.queueNumber || '...'}
                   </span>
                   {trackerData?.assignedChairName && (
-                    <span className="text-[10px] font-extrabold px-3 py-1 bg-white text-slate-900 border border-slate-200 rounded-full uppercase tracking-wider shadow-sm">
+                    <span className="chair-pill text-[10px] font-black px-3 py-1 bg-white text-slate-950 border border-slate-200 rounded-full uppercase tracking-wider shadow-sm">
                       💈 {trackerData.assignedChairName} {trackerData.barberName ? `(${trackerData.barberName})` : ''}
                     </span>
                   )}
