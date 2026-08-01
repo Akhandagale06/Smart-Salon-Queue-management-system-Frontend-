@@ -13,7 +13,7 @@ export const formatWaitTime = (minutes, t) => {
     return `0 ${minsUnit}`;
   }
 
-  if (mins > 45) {
+  if (mins > 60) {
     const wholeHours = Math.floor(mins / 60);
     const remMins = mins % 60;
     const hrUnit = wholeHours === 1
