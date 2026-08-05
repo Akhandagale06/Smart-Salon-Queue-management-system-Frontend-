@@ -13,7 +13,8 @@ import {
   Loader,
   Calendar,
   Sparkles,
-  Heart
+  Heart,
+  Megaphone
 } from 'lucide-react';
 import api from '../config/api';
 
@@ -158,9 +159,45 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
     );
   }
 
+  const isHolidayExpired = (dateStr) => {
+    if (!dateStr) return false;
+    try {
+      let dStr = dateStr.trim();
+      if (dStr.includes(' to ')) dStr = dStr.split(' to ').pop().trim();
+      else if (dStr.includes(' - ')) dStr = dStr.split(' - ').pop().trim();
+      
+      let year, month, day;
+      if (dStr.includes('/')) {
+        const parts = dStr.split('/');
+        day = parseInt(parts[0], 10);
+        month = parseInt(parts[1], 10) - 1;
+        year = parseInt(parts[2], 10);
+      } else if (dStr.includes('-')) {
+        const parts = dStr.split('-');
+        if (parts[0].length === 4) {
+          year = parseInt(parts[0], 10);
+          month = parseInt(parts[1], 10) - 1;
+          day = parseInt(parts[2], 10);
+        } else {
+          day = parseInt(parts[0], 10);
+          month = parseInt(parts[1], 10) - 1;
+          year = parseInt(parts[2], 10);
+        }
+      }
+      if (year && month !== undefined && day) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const holidayEnd = new Date(year, month, day, 23, 59, 59);
+        return today > holidayEnd;
+      }
+    } catch (e) {}
+    return false;
+  };
+
+  const isCurrentHoliday = salon?.holidayDate && !isHolidayExpired(salon.holidayDate);
   const isBookingDateToday = bookingDate === new Date().toISOString().split('T')[0];
   const isCurrentlyClosed = salon?.isOpen === false;
-  const isUnavailable = salon?.mode === 'EMERGENCY' || (salon?.mode === 'BUSY' && isBookingDateToday) || (isCurrentlyClosed && isBookingDateToday);
+  const isUnavailable = salon?.mode === 'EMERGENCY' || (salon?.mode === 'BUSY' && isBookingDateToday) || (isCurrentlyClosed && isBookingDateToday) || isCurrentHoliday;
 
   return (
     <div className="space-y-6 pb-24 animate-fade-in">
@@ -210,9 +247,9 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
       </div>
 
       {/* Animated Holiday Announcement Banner */}
-      {salon?.holidayDate && (
+      {isCurrentHoliday && (
         <div 
-          className="relative overflow-hidden p-6 rounded-3xl backdrop-blur-md space-y-4 animate-fade-in group shadow-2xl"
+          className="holiday-banner-card relative overflow-hidden p-6 rounded-3xl backdrop-blur-md space-y-4 animate-fade-in group shadow-2xl"
           style={{
             background: 'linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #701a75 100%)',
             border: '2px solid rgba(167, 139, 250, 0.5)',
@@ -226,10 +263,10 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
           <div className="flex items-center justify-between gap-3 border-b border-violet-400/30 pb-3.5 relative z-10">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 border border-violet-300/40 flex items-center justify-center text-white shadow-lg shadow-violet-500/30 shrink-0 animate-bounce">
-                <Sparkles className="w-5 h-5 text-amber-300 fill-current animate-spin" />
+                <Megaphone className="w-5 h-5 text-amber-300 fill-amber-300/20" />
               </div>
               <div>
-                <h4 className="font-black text-base tracking-wide flex items-center gap-2" style={{ color: '#ffffff' }}>
+                <h4 className="holiday-title font-black text-base tracking-wide flex items-center gap-2" style={{ color: '#ffffff' }}>
                   {t('holiday.announcementTitle')}
                 </h4>
                 <p className="text-[11px] font-semibold flex items-center gap-1" style={{ color: '#ddd6fe' }}>

@@ -307,14 +307,19 @@
   color: #ffffff !important;
 }
 
-.holiday-banner-card *,
-.theme-light .holiday-banner-card * {
-  color: inherit;
+.holiday-banner-card h4,
+.theme-light .holiday-banner-card h4,
+.holiday-banner-card h3,
+.theme-light .holiday-banner-card h3,
+.holiday-banner-card .holiday-title,
+.theme-light .holiday-banner-card .holiday-title {
+  color: #ffffff !important;
+  font-weight: 900 !important;
 }
 
 .holiday-banner-card p,
 .theme-light .holiday-banner-card p {
-  color: #ffffff !important;
+  color: #e9d5ff !important;
 }
 
 /* ==============================
