@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatServiceName } from '../utils/serviceTranslator';
+import { isHolidayExpired, isDateOnHoliday } from '../utils/dateUtils';
 import { 
   ArrowLeft, 
   Star, 
@@ -70,16 +71,16 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
     return formatTime12Hr(slot.time);
   };
 
-  const fetchSalonDetails = async () => {
+  const fetchSalonDetails = async (isSilent = false) => {
     try {
-      setLoading(true);
+      if (!isSilent) setLoading(true);
       setError('');
       const response = await api.get(`/api/salons/${salonId}`);
       setSalon(response.data.data);
     } catch (err) {
-      setError('Failed to load salon details.');
+      if (!isSilent) setError('Failed to load salon details.');
     } finally {
-      setLoading(false);
+      if (!isSilent) setLoading(false);
     }
   };
 
@@ -115,6 +116,12 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
     if (salonId) {
       fetchSalonDetails();
       fetchChairs();
+
+      const interval = setInterval(() => {
+        fetchSalonDetails(true);
+      }, 3000); // 3-second live refresh
+
+      return () => clearInterval(interval);
     }
   }, [salonId]);
 
@@ -159,45 +166,11 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
     );
   }
 
-  const isHolidayExpired = (dateStr) => {
-    if (!dateStr) return false;
-    try {
-      let dStr = dateStr.trim();
-      if (dStr.includes(' to ')) dStr = dStr.split(' to ').pop().trim();
-      else if (dStr.includes(' - ')) dStr = dStr.split(' - ').pop().trim();
-      
-      let year, month, day;
-      if (dStr.includes('/')) {
-        const parts = dStr.split('/');
-        day = parseInt(parts[0], 10);
-        month = parseInt(parts[1], 10) - 1;
-        year = parseInt(parts[2], 10);
-      } else if (dStr.includes('-')) {
-        const parts = dStr.split('-');
-        if (parts[0].length === 4) {
-          year = parseInt(parts[0], 10);
-          month = parseInt(parts[1], 10) - 1;
-          day = parseInt(parts[2], 10);
-        } else {
-          day = parseInt(parts[0], 10);
-          month = parseInt(parts[1], 10) - 1;
-          year = parseInt(parts[2], 10);
-        }
-      }
-      if (year && month !== undefined && day) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const holidayEnd = new Date(year, month, day, 23, 59, 59);
-        return today > holidayEnd;
-      }
-    } catch (e) {}
-    return false;
-  };
-
   const isCurrentHoliday = salon?.holidayDate && !isHolidayExpired(salon.holidayDate);
   const isBookingDateToday = bookingDate === new Date().toISOString().split('T')[0];
   const isCurrentlyClosed = salon?.isOpen === false;
-  const isUnavailable = salon?.mode === 'EMERGENCY' || (salon?.mode === 'BUSY' && isBookingDateToday) || (isCurrentlyClosed && isBookingDateToday) || isCurrentHoliday;
+  const isBookingDateOnHoliday = isDateOnHoliday(bookingDate, salon?.holidayDate);
+  const isUnavailable = salon?.mode === 'EMERGENCY' || (salon?.mode === 'BUSY' && isBookingDateToday) || (isCurrentlyClosed && isBookingDateToday) || isBookingDateOnHoliday;
 
   return (
     <div className="space-y-6 pb-24 animate-fade-in">
@@ -483,6 +456,12 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
                     className="absolute inset-0 opacity-0 pointer-events-none w-0 h-0"
                   />
                 </div>
+                {isBookingDateOnHoliday && (
+                  <p className="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/25 p-2.5 rounded-xl flex items-center gap-2 mt-1.5">
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400" />
+                    <span>Salon is closed on holiday on this date ({salon?.holidayDate}). Please pick another date for booking.</span>
+                  </p>
+                )}
               </div>
 
               {/* Chair / Barber Preference Selector */}
@@ -558,7 +537,7 @@ const SalonDetail = ({ salonId, onBack, onBookingSuccess }) => {
               {/* Submit */}
               <button
                 type="submit"
-                disabled={bookingLoading || !bookingTime}
+                disabled={bookingLoading || !bookingTime || isBookingDateOnHoliday}
                 className="w-full py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-violet-500/10 transition-opacity"
               >
                 {bookingLoading ? (

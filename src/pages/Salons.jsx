@@ -12,9 +12,9 @@ const Salons = ({ onSelectSalon, searchTerm = '' }) => {
   const [coordsLoading, setCoordsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchSalons = async (latitude = null, longitude = null, query = searchTerm) => {
+  const fetchSalons = async (latitude = null, longitude = null, query = searchTerm, isSilent = false) => {
     try {
-      setLoading(true);
+      if (!isSilent) setLoading(true);
       setError('');
       let url = '/api/salons';
 
@@ -27,9 +27,9 @@ const Salons = ({ onSelectSalon, searchTerm = '' }) => {
       const response = await api.get(url);
       setSalons(response.data.data);
     } catch (err) {
-      setError('Failed to fetch salons. Please try again.');
+      if (!isSilent) setError('Failed to fetch salons. Please try again.');
     } finally {
-      setLoading(false);
+      if (!isSilent) setLoading(false);
     }
   };
 
@@ -59,6 +59,12 @@ const Salons = ({ onSelectSalon, searchTerm = '' }) => {
   useEffect(() => {
     // Initial fetch using geolocation or search term
     getGeoLocation();
+
+    const interval = setInterval(() => {
+      fetchSalons(coords?.latitude, coords?.longitude, searchTerm, true);
+    }, 4000); // 4-second live refresh
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
